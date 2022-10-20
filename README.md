@@ -1,3 +1,5 @@
+[![build](https://github.com/uncmd/PowerScheduler/actions/workflows/build.yml/badge.svg)](https://github.com/uncmd/PowerScheduler/actions/workflows/build.yml)
+
 ## About this solution
 
 This is a minimalist, non-layered startup solution with the ABP Framework. All the fundamental ABP modules are already installed.
