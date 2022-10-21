@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PowerScheduler.Entities;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.FeatureManagement.EntityFrameworkCore;
@@ -17,6 +18,9 @@ public class PowerSchedulerDbContext : AbpDbContext<PowerSchedulerDbContext>
     {
     }
 
+    public DbSet<SchedulerJob> SchedulerJobs { get; set; }
+    public DbSet<SchedulerTask> SchedulerTasks { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -32,5 +36,6 @@ public class PowerSchedulerDbContext : AbpDbContext<PowerSchedulerDbContext>
         builder.ConfigureTenantManagement();
 
         /* Configure your own entities here */
+        builder.ConfigurePowerScheduler();
     }
 }
