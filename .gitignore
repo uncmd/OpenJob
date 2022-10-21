@@ -253,7 +253,7 @@ paket-files/
 
 
 # PowerScheduler
-PowerScheduler/Logs/*
+Logs/
 
 *.db
 *.db-shm

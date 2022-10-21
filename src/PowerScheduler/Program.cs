@@ -1,3 +1,4 @@
+using Orleans.Hosting;
 using PowerScheduler;
 using PowerScheduler.Data;
 using Serilog;
@@ -12,7 +13,7 @@ var loggerConfiguration = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
     .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
     .Enrich.FromLogContext()
-    .WriteTo.Async(c => c.File("Logs/logs.txt"))
+    .WriteTo.Async(c => c.File("Logs/logs.txt", rollingInterval: RollingInterval.Day))
     .WriteTo.Async(c => c.Console());
 
 if (IsMigrateDatabase(args))
@@ -26,9 +27,29 @@ Log.Logger = loggerConfiguration.CreateLogger();
 try
 {
     var builder = WebApplication.CreateBuilder(args);
+
+    // Orleans.Clustering.AdoNet.Storage.AdoNetInvariants
+    string invariant = "Microsoft.Data.SqlClient";
+    string connectionString = builder.Configuration.GetConnectionString("Default");
+
     builder.Host.AddAppSettingsSecretsJson()
         .UseAutofac()
-        .UseSerilog();
+        .UseSerilog()
+        .UseOrleans((context, builder) =>
+        {
+            builder
+                .UseAdoNetClustering(options =>
+                {
+                    options.Invariant = invariant;
+                    options.ConnectionString = connectionString;
+                })
+                .UseAdoNetReminderService(options =>
+                {
+                    options.Invariant = invariant;
+                    options.ConnectionString = connectionString;
+                });
+        });
+
     await builder.AddApplicationAsync<PowerSchedulerModule>();
     var app = builder.Build();
     await app.InitializeApplicationAsync();
