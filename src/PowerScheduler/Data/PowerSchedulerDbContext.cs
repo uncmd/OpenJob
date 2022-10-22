@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PowerScheduler.Entities;
+using PowerScheduler.Entities.Orleans;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.FeatureManagement.EntityFrameworkCore;
@@ -21,10 +22,14 @@ public class PowerSchedulerDbContext : AbpDbContext<PowerSchedulerDbContext>
     public DbSet<SchedulerJob> SchedulerJobs { get; set; }
     public DbSet<SchedulerTask> SchedulerTasks { get; set; }
 
+    public DbSet<OrleansQuery> OrleansQueries { get; set; }
+    public DbSet<OrleansMembershipVersionTable> OrleansMembershipVersions { get; set; }
+    public DbSet<OrleansRemindersTable> OrleansRemindersTables { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-
+        
         /* Include modules to your migration db context */
 
         builder.ConfigurePermissionManagement();
