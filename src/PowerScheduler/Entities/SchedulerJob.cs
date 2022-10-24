@@ -62,12 +62,12 @@ public class SchedulerJob : FullAuditedAggregateRoot<Guid>
     /// <summary>
     /// 开始时间
     /// </summary>
-    public DateTime BeginTime { get; set; } = DateTime.MinValue;
+    public DateTime? BeginTime { get; set; }
 
     /// <summary>
     /// 结束时间
     /// </summary>
-    public DateTime EndTime { get; set; } = DateTime.MinValue;
+    public DateTime? EndTime { get; set; }
     #endregion
 
     #region 运行时配置
@@ -89,7 +89,7 @@ public class SchedulerJob : FullAuditedAggregateRoot<Guid>
     /// <summary>
     /// 最后一次调度时间
     /// </summary>
-    public DateTime LastTriggerTime { get; set; } = DateTime.MinValue;
+    public DateTime? LastTriggerTime { get; set; }
 
     /// <summary>
     /// 过期策略(忽略、立即触发补偿一次)，默认为忽略

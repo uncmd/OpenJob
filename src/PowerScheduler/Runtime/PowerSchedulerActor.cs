@@ -74,7 +74,8 @@ public class PowerSchedulerActor : ActorBase, IPowerSchedulerActor, IRemindable
         var jobs = await _jobRepository.GetListAsync(p => p.IsEnabled && !p.IsAbandoned &&
             p.TimeExpression != TimeExpression.None && p.TimeExpression != TimeExpression.Api &&
             p.NextTriggerTime <= Clock.Now.AddSeconds(_options.SchedulePeriod.TotalSeconds * 1.3) &&
-            p.BeginTime >= Clock.Now && p.EndTime <= Clock.Now);
+            (p.BeginTime == null || p.BeginTime >= Clock.Now) && 
+            (p.EndTime == null || p.EndTime <= Clock.Now));
 
         if (jobs.Any())
         {
