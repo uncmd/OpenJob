@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging.Abstractions;
 using Orleans;
 using Volo.Abp.DependencyInjection;
+using Volo.Abp.Guids;
+using Volo.Abp.Timing;
 
 namespace PowerScheduler.Actors;
 
@@ -12,6 +14,12 @@ public abstract class ActorBase : ActorBase<Guid>
 public abstract class ActorBase<TPrimaryKey> : Grain, IActor<TPrimaryKey>
 {
     public IAbpLazyServiceProvider LazyServiceProvider { get; private set; }
+
+    protected IClock Clock => LazyServiceProvider.LazyGetRequiredService<IClock>();
+
+    protected IGuidGenerator GuidGenerator => LazyServiceProvider.LazyGetRequiredService<IGuidGenerator>();
+
+    protected IGrainFactory ActorClient => LazyServiceProvider.LazyGetRequiredService<IGrainFactory>();
 
     protected ILoggerFactory LoggerFactory => LazyServiceProvider.LazyGetRequiredService<ILoggerFactory>();
 

@@ -17,14 +17,14 @@ public class SchedulerTask : AuditedAggregateRoot<Guid>
     /// <summary>
     /// 预计触发时间
     /// </summary>
-    public DateTimeOffset ExpectedTriggerTime { get; set; }
+    public DateTime ExpectedTriggerTime { get; set; }
 
     /// <summary>
     /// 实际触发时间
     /// </summary>
-    public DateTimeOffset ActualTriggerTime { get; set; } = DateTimeOffset.MinValue;
+    public DateTime ActualTriggerTime { get; set; } = DateTime.MinValue;
 
-    public DateTimeOffset FinishedTime { get; set; } = DateTimeOffset.MinValue;
+    public DateTime FinishedTime { get; set; } = DateTime.MinValue;
 
     public string WorkerHost { get; set; }
 
@@ -38,9 +38,21 @@ public class SchedulerTask : AuditedAggregateRoot<Guid>
     /// </summary>
     public int TryCount { get; set; }
 
-    public SchedulerTask(Guid jobId)
+    protected SchedulerTask() { }
+
+    public SchedulerTask(Guid jobId, DateTime expectedTriggerTime)
     {
         JobId = jobId;
+        ExpectedTriggerTime = expectedTriggerTime;
+        TaskRunStatus = TaskRunStatus.WaitingDispatch;
+    }
+
+    public SchedulerTask(Guid id, Guid jobId, DateTime expectedTriggerTime)
+        : base(id)
+    {
+        JobId = jobId;
+        ExpectedTriggerTime = expectedTriggerTime;
+        TaskRunStatus = TaskRunStatus.WaitingDispatch;
     }
 
     public override string ToString()

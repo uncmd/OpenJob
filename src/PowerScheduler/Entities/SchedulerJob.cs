@@ -62,12 +62,12 @@ public class SchedulerJob : FullAuditedAggregateRoot<Guid>
     /// <summary>
     /// 开始时间
     /// </summary>
-    public DateTimeOffset BeginTime { get; set; } = DateTimeOffset.MinValue;
+    public DateTime BeginTime { get; set; } = DateTime.MinValue;
 
     /// <summary>
     /// 结束时间
     /// </summary>
-    public DateTimeOffset EndTime { get; set; } = DateTimeOffset.MinValue;
+    public DateTime EndTime { get; set; } = DateTime.MinValue;
     #endregion
 
     #region 运行时配置
@@ -84,12 +84,12 @@ public class SchedulerJob : FullAuditedAggregateRoot<Guid>
     /// <summary>
     /// 下次调度时间
     /// </summary>
-    public DateTimeOffset NextTriggerTime { get; set; } = DateTimeOffset.MinValue;
+    public DateTime NextTriggerTime { get; set; } = DateTime.MinValue;
 
     /// <summary>
     /// 最后一次调度时间
     /// </summary>
-    public DateTimeOffset LastTriggerTime { get; set; } = DateTimeOffset.MinValue;
+    public DateTime LastTriggerTime { get; set; } = DateTime.MinValue;
 
     /// <summary>
     /// 过期策略(忽略、立即触发补偿一次)，默认为忽略
@@ -98,6 +98,11 @@ public class SchedulerJob : FullAuditedAggregateRoot<Guid>
     #endregion
 
     public virtual ICollection<SchedulerTask> SchedulerTasks { get; set; }
+
+    public bool NeedNextTriggerTime => 
+        TimeExpression == TimeExpression.Cron ||
+        TimeExpression == TimeExpression.FixedRate ||
+        TimeExpression == TimeExpression.SecondDelay;
 
     public override string ToString()
     {

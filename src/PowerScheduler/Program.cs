@@ -47,7 +47,8 @@ try
                 {
                     options.Invariant = invariant;
                     options.ConnectionString = connectionString;
-                });
+                })
+                .UsePowerScheduler();
         });
 
     await builder.AddApplicationAsync<PowerSchedulerModule>();
