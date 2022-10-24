@@ -83,7 +83,7 @@ namespace PowerScheduler.Migrations
                         .ValueGeneratedOnAdd()
                         .HasPrecision(3)
                         .HasColumnType("DATETIME2(3)")
-                        .HasDefaultValue(new DateTime(2022, 10, 22, 9, 3, 0, 302, DateTimeKind.Utc).AddTicks(8693));
+                        .HasDefaultValue(new DateTime(2022, 10, 24, 14, 41, 5, 497, DateTimeKind.Utc).AddTicks(8024));
 
                     b.Property<int>("Version")
                         .ValueGeneratedOnAdd()
@@ -203,8 +203,8 @@ namespace PowerScheduler.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTimeOffset>("BeginTime")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime?>("BeginTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -232,8 +232,8 @@ namespace PowerScheduler.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("nvarchar(512)");
 
-                    b.Property<DateTimeOffset>("EndTime")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime?>("EndTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("ExecutionMode")
                         .HasColumnType("int");
@@ -276,8 +276,8 @@ namespace PowerScheduler.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<DateTimeOffset>("LastTriggerTime")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime?>("LastTriggerTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("MaxTryCount")
                         .HasColumnType("int");
@@ -289,8 +289,8 @@ namespace PowerScheduler.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
 
-                    b.Property<DateTimeOffset>("NextTriggerTime")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime>("NextTriggerTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("ProcessorInfo")
                         .HasMaxLength(256)
@@ -316,8 +316,8 @@ namespace PowerScheduler.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTimeOffset>("ActualTriggerTime")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime>("ActualTriggerTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -333,15 +333,15 @@ namespace PowerScheduler.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("CreatorId");
 
-                    b.Property<DateTimeOffset>("ExpectedTriggerTime")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime>("ExpectedTriggerTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("ExtraProperties")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("ExtraProperties");
 
-                    b.Property<DateTimeOffset>("FinishedTime")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime>("FinishedTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("JobId")
                         .HasColumnType("uniqueidentifier");

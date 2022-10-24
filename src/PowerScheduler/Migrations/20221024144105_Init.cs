@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace PowerScheduler.Migrations
 {
-    public partial class Initial : Migration
+    public partial class Init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -316,6 +316,108 @@ namespace PowerScheduler.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "OrleansMembershipVersionTable",
+                columns: table => new
+                {
+                    DeploymentId = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "DATETIME2(3)", precision: 3, nullable: false, defaultValue: new DateTime(2022, 10, 24, 14, 41, 5, 497, DateTimeKind.Utc).AddTicks(8024)),
+                    Version = table.Column<int>(type: "int", nullable: false, defaultValue: 0)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrleansMembershipVersionTable", x => x.DeploymentId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OrleansQuery",
+                columns: table => new
+                {
+                    QueryKey = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
+                    QueryText = table.Column<string>(type: "nvarchar(max)", maxLength: 8000, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrleansQuery", x => x.QueryKey);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OrleansRemindersTable",
+                columns: table => new
+                {
+                    ServiceId = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    GrainId = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    ReminderName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    StartTime = table.Column<DateTime>(type: "DATETIME2(3)", precision: 3, nullable: false),
+                    Period = table.Column<long>(type: "bigint", nullable: false),
+                    GrainHash = table.Column<int>(type: "int", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrleansRemindersTable", x => new { x.ServiceId, x.GrainId, x.ReminderName });
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OrleansStorage",
+                columns: table => new
+                {
+                    GrainIdHash = table.Column<int>(type: "int", nullable: false),
+                    GrainIdN0 = table.Column<long>(type: "bigint", nullable: false),
+                    GrainIdN1 = table.Column<long>(type: "bigint", nullable: false),
+                    GrainTypeHash = table.Column<int>(type: "int", nullable: false),
+                    GrainTypeString = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
+                    GrainIdExtensionString = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
+                    ServiceId = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    PayloadBinary = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    PayloadXml = table.Column<string>(type: "xml", nullable: true),
+                    PayloadJson = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ModifiedOn = table.Column<DateTime>(type: "DATETIME2(3)", precision: 3, nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PowerSchedulerJob",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
+                    Labels = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    JobPriority = table.Column<int>(type: "int", nullable: false),
+                    JobArgs = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
+                    IsEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    IsAbandoned = table.Column<bool>(type: "bit", nullable: false),
+                    JobType = table.Column<int>(type: "int", nullable: false),
+                    ExecutionMode = table.Column<int>(type: "int", nullable: false),
+                    ProcessorInfo = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    TimeExpression = table.Column<int>(type: "int", nullable: false),
+                    TimeExpressionValue = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    BeginTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    EndTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    MaxTryCount = table.Column<int>(type: "int", nullable: false),
+                    TimeoutSecond = table.Column<int>(type: "int", nullable: false),
+                    NextTriggerTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastTriggerTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    MisfireStrategy = table.Column<int>(type: "int", nullable: false),
+                    ExtraProperties = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
+                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeleterId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PowerSchedulerJob", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AbpAuditLogActions",
                 columns: table => new
                 {
@@ -580,6 +682,65 @@ namespace PowerScheduler.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "OrleansMembershipTable",
+                columns: table => new
+                {
+                    DeploymentId = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(45)", maxLength: 45, nullable: false),
+                    Port = table.Column<int>(type: "int", nullable: false),
+                    Generation = table.Column<int>(type: "int", nullable: false),
+                    SiloName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    HostName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    ProxyPort = table.Column<int>(type: "int", nullable: false),
+                    SuspectTimes = table.Column<string>(type: "nvarchar(max)", maxLength: 8000, nullable: true),
+                    StartTime = table.Column<DateTime>(type: "DATETIME2(3)", precision: 3, nullable: false),
+                    IAmAliveTime = table.Column<DateTime>(type: "DATETIME2(3)", precision: 3, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrleansMembershipTable", x => new { x.DeploymentId, x.Address, x.Port, x.Generation });
+                    table.ForeignKey(
+                        name: "FK_OrleansMembershipTable_OrleansMembershipVersionTable_DeploymentId",
+                        column: x => x.DeploymentId,
+                        principalTable: "OrleansMembershipVersionTable",
+                        principalColumn: "DeploymentId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PowerSchedulerTask",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    JobId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TaskArgs = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
+                    TaskRunStatus = table.Column<int>(type: "int", nullable: false),
+                    ExpectedTriggerTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ActualTriggerTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FinishedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    WorkerHost = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: true),
+                    Result = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: true),
+                    TryCount = table.Column<int>(type: "int", nullable: false),
+                    ExtraProperties = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
+                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PowerSchedulerTask", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PowerSchedulerTask_PowerSchedulerJob_JobId",
+                        column: x => x.JobId,
+                        principalTable: "PowerSchedulerJob",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AbpEntityPropertyChanges",
                 columns: table => new
                 {
@@ -825,6 +986,23 @@ namespace PowerScheduler.Migrations
                 name: "IX_OpenIddictTokens_ReferenceId",
                 table: "OpenIddictTokens",
                 column: "ReferenceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrleansStorage_GrainIdHash",
+                table: "OrleansStorage",
+                column: "GrainIdHash")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrleansStorage_GrainTypeHash",
+                table: "OrleansStorage",
+                column: "GrainTypeHash")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PowerSchedulerTask_JobId",
+                table: "PowerSchedulerTask",
+                column: "JobId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -884,6 +1062,21 @@ namespace PowerScheduler.Migrations
                 name: "OpenIddictTokens");
 
             migrationBuilder.DropTable(
+                name: "OrleansMembershipTable");
+
+            migrationBuilder.DropTable(
+                name: "OrleansQuery");
+
+            migrationBuilder.DropTable(
+                name: "OrleansRemindersTable");
+
+            migrationBuilder.DropTable(
+                name: "OrleansStorage");
+
+            migrationBuilder.DropTable(
+                name: "PowerSchedulerTask");
+
+            migrationBuilder.DropTable(
                 name: "AbpEntityChanges");
 
             migrationBuilder.DropTable(
@@ -900,6 +1093,12 @@ namespace PowerScheduler.Migrations
 
             migrationBuilder.DropTable(
                 name: "OpenIddictAuthorizations");
+
+            migrationBuilder.DropTable(
+                name: "OrleansMembershipVersionTable");
+
+            migrationBuilder.DropTable(
+                name: "PowerSchedulerJob");
 
             migrationBuilder.DropTable(
                 name: "AbpAuditLogs");
