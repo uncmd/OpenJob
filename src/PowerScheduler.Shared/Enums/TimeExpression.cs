@@ -1,4 +1,4 @@
-﻿namespace PowerScheduler.Entities.Enums;
+﻿namespace PowerScheduler.Enums;
 
 /// <summary>
 /// 时间表达式类型

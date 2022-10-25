@@ -1,8 +1,6 @@
 ﻿using PowerScheduler.Actors;
 using PowerScheduler.Entities;
-using PowerScheduler.Entities.Enums;
-using PowerScheduler.Runtime.Processors;
-using Volo.Abp.DependencyInjection;
+using PowerScheduler.Enums;
 using Volo.Abp.Domain.Repositories;
 
 namespace PowerScheduler.Runtime;
@@ -53,80 +51,15 @@ public class SchedulerTaskActor : ActorBase, ISchedulerTaskActor
             return;
         }
 
-        Logger.LogInformation("start to dispatch task: {SchedulerTask}", schedulerTask);
-
-        schedulerTask.ActualTriggerTime = Clock.Now;
-        schedulerJob.LastTriggerTime = Clock.Now;
-
         if (schedulerJob.ProcessorInfo.IsNullOrEmpty())
         {
             Logger.LogWarning("SchedulerJob-{SchedulerJob} ProcessorInfo is empty.", schedulerJob);
             return;
         }
 
-        var context = new ProcessorContext()
-        {
-            SchedulerJob = schedulerJob,
-            SchedulerTask = schedulerTask,
-        };
+        Logger.LogInformation("start to dispatch task: {SchedulerTask}", schedulerTask);
 
-        await ExecutorRunner(context);
-    }
-
-    private async Task ExecutorRunner(ProcessorContext context)
-    {
-        var jobInstance = context.SchedulerTask;
-        var jobInfo = context.SchedulerJob;
-
-        try
-        {
-            var executeResult = await RunProcessor(context);
-
-            jobInstance.FinishedTime = DateTime.Now;
-            jobInstance.Result = executeResult.Message;
-            jobInstance.TaskRunStatus = executeResult.Success ? TaskRunStatus.Succeed : TaskRunStatus.Failed;
-
-            if (!executeResult.Success)
-            {
-                Logger.LogWarning("execute result is unsuccess: {Result}", executeResult.Message);
-            }
-        }
-        catch (Exception ex)
-        {
-            if (jobInstance.TryCount >= jobInfo.MaxTryCount)
-            {
-                Logger.LogError(ex, "executor runner retry {TryCount} greater than max trycount {MaxTryCount} failed.",
-                    jobInstance.TryCount, jobInfo.MaxTryCount);
-                return;
-            }
-
-            jobInstance.TryCount++;
-            jobInstance.TaskRunStatus = TaskRunStatus.Failed;
-            jobInstance.Result = $"executor runner failed, retry: {jobInstance.TryCount}, error: {ex.Message}";
-            Logger.LogWarning(ex, "executor runner failed, retry: {TryCount}", jobInstance.TryCount);
-        }
-    }
-
-    private async Task<ProcessorResult> RunProcessor(ProcessorContext context)
-    {
-        var processor = GetProcessor(context);
-        if (processor != null)
-            return await processor.ExecuteAsync(context);
-
-        return ProcessorResult.ErrorMessage($"processor type {context.SchedulerJob.ProcessorInfo} not register, Processor must implementation {typeof(IProcessor).AssemblyQualifiedName}");
-    }
-
-    private IProcessor GetProcessor(ProcessorContext context)
-    {
-        var instanceType = Type.GetType(context.SchedulerJob.ProcessorInfo);
-
-        var processor = (IProcessor)ServiceProvider.GetRequiredService(instanceType);
-
-        if (processor is ProcessorBase processorBase && processorBase.LazyServiceProvider == null)
-        {
-            processorBase.LazyServiceProvider = ServiceProvider.GetRequiredService<IAbpLazyServiceProvider>();
-        }
-
-        return processor;
+        schedulerTask.ActualTriggerTime = Clock.Now;
+        schedulerJob.LastTriggerTime = Clock.Now;
     }
 }

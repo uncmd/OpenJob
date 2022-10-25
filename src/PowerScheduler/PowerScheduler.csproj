@@ -107,4 +107,8 @@
     <None Remove="Logs\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PowerScheduler.Shared\PowerScheduler.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

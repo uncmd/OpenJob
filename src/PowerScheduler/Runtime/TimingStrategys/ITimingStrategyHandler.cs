@@ -1,4 +1,4 @@
-﻿using PowerScheduler.Entities.Enums;
+﻿using PowerScheduler.Enums;
 using Volo.Abp.DependencyInjection;
 
 namespace PowerScheduler.Runtime.TimingStrategys;

@@ -1,5 +1,5 @@
 ﻿using PowerScheduler.Entities;
-using PowerScheduler.Entities.Enums;
+using PowerScheduler.Enums;
 using PowerScheduler.Runtime.TimingStrategys;
 using Volo.Abp.DependencyInjection;
 

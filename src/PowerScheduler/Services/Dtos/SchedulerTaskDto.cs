@@ -1,4 +1,4 @@
-﻿using PowerScheduler.Entities.Enums;
+﻿using PowerScheduler.Enums;
 using Volo.Abp.Application.Dtos;
 
 namespace PowerScheduler.Services.Dtos;

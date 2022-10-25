@@ -1,6 +1,6 @@
 ﻿using Volo.Abp.DependencyInjection;
 
-namespace PowerScheduler.Runtime.Processors;
+namespace PowerScheduler.Processors;
 
 /// <summary>
 /// 表示一个任务处理器

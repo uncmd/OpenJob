@@ -1,4 +1,4 @@
-﻿using PowerScheduler.Entities.Enums;
+﻿using PowerScheduler.Enums;
 
 namespace PowerScheduler.Services.Dtos;
 

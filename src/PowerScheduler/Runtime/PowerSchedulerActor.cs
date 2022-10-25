@@ -5,7 +5,7 @@ using Orleans.Runtime;
 using PowerScheduler.Actors;
 using PowerScheduler.Domain;
 using PowerScheduler.Entities;
-using PowerScheduler.Entities.Enums;
+using PowerScheduler.Enums;
 using System.Diagnostics;
 using Volo.Abp.Domain.Repositories;
 

@@ -1,4 +1,4 @@
-﻿namespace PowerScheduler.Entities.Enums;
+﻿namespace PowerScheduler.Enums;
 
 /// <summary>
 /// 任务运行状态

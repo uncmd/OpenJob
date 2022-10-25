@@ -1,4 +1,4 @@
-﻿using PowerScheduler.Entities.Enums;
+﻿using PowerScheduler.Enums;
 using Volo.Abp.Domain.Entities.Auditing;
 
 namespace PowerScheduler.Entities;
@@ -6,6 +6,8 @@ namespace PowerScheduler.Entities;
 public class SchedulerTask : AuditedAggregateRoot<Guid>
 {
     public Guid JobId { get; private set; }
+
+    public string JobArgs { get; set; }
 
     public string TaskArgs { get; set; }
 

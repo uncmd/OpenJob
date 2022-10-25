@@ -1,12 +1,16 @@
-﻿using Microsoft.Extensions.Logging.Abstractions;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using System.Diagnostics;
 using Volo.Abp.DependencyInjection;
+using Volo.Abp.Timing;
 
-namespace PowerScheduler.Runtime.Processors;
+namespace PowerScheduler.Processors;
 
 public abstract class ProcessorBase : IProcessor
 {
     public IAbpLazyServiceProvider LazyServiceProvider { get; set; }
+
+    public IClock Clock => LazyServiceProvider.LazyGetRequiredService<IClock>();
 
     protected ILoggerFactory LoggerFactory => LazyServiceProvider.LazyGetRequiredService<ILoggerFactory>();
 

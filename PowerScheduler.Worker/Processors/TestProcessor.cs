@@ -1,4 +1,6 @@
-﻿namespace PowerScheduler.Runtime.Processors;
+﻿using Microsoft.Extensions.Logging;
+
+namespace PowerScheduler.Processors;
 
 public class TestProcessor : ProcessorBase
 {

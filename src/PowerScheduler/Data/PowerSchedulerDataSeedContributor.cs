@@ -1,8 +1,5 @@
 ﻿using PowerScheduler.Entities;
-using PowerScheduler.Entities.Enums;
 using PowerScheduler.Entities.Orleans;
-using PowerScheduler.Runtime.Crons;
-using PowerScheduler.Runtime.Processors;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Repositories;
@@ -44,33 +41,9 @@ public class PowerSchedulerDataSeedContributor : IDataSeedContributor, ITransien
     {
         using (CurrentTenant.Change(tenantId))
         {
-            await SeedSchedulerJob();
             await SeedClustering();
             await SeedReminders();
             await SeedPersistence();
-        }
-    }
-
-    protected async Task SeedSchedulerJob()
-    {
-        var job = await JobRepository.FirstOrDefaultAsync();
-        if (job == null)
-        {
-            job = new SchedulerJob()
-            {
-                IsEnabled = true,
-                IsAbandoned = false,
-                MaxTryCount = 3,
-                Name = "TestProcessor",
-                Description = "default use test job.",
-                ProcessorInfo = typeof(TestProcessor).FullName,
-                ExecutionMode = ExecutionMode.Standalone,
-                JobType = JobType.CSharp,
-                TimeExpression = TimeExpression.Cron,
-                TimeExpressionValue = Cron.EveryThirtySeconds.ToString(),
-            };
-
-            await JobRepository.InsertAsync(job);
         }
     }
 

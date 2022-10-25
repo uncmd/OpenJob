@@ -1,4 +1,4 @@
-﻿using PowerScheduler.Entities.Enums;
+﻿using PowerScheduler.Enums;
 using PowerScheduler.Runtime.Crons;
 
 namespace PowerScheduler.Runtime.TimingStrategys;

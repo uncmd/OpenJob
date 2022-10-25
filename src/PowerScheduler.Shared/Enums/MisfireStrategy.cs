@@ -1,4 +1,4 @@
-﻿namespace PowerScheduler.Entities.Enums;
+﻿namespace PowerScheduler.Enums;
 
 /// <summary>
 /// 过期策略

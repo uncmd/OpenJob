@@ -1,4 +1,4 @@
-﻿using PowerScheduler.Entities.Enums;
+﻿using PowerScheduler.Enums;
 using Volo.Abp.Domain.Entities.Auditing;
 
 namespace PowerScheduler.Entities;

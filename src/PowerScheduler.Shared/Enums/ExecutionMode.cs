@@ -1,4 +1,4 @@
-﻿namespace PowerScheduler.Entities.Enums;
+﻿namespace PowerScheduler.Enums;
 
 public enum ExecutionMode
 {

@@ -103,7 +103,9 @@ namespace PowerScheduler;
     typeof(AbpSettingManagementApplicationModule),
     typeof(AbpSettingManagementEntityFrameworkCoreModule),
     typeof(AbpSettingManagementHttpApiModule),
-    typeof(AbpSettingManagementBlazorServerModule)
+    typeof(AbpSettingManagementBlazorServerModule),
+
+    typeof(PowerSchedulerSharedModule)
 )]
 public class PowerSchedulerModule : AbpModule
 {

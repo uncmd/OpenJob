@@ -1,4 +1,4 @@
-﻿namespace PowerScheduler.Runtime.Processors;
+﻿namespace PowerScheduler.Processors;
 
 /// <summary>
 /// 处理结果

@@ -21,7 +21,7 @@ public static class PowerSchedulerDbContextModelBuilderExtensions
             b.Property(p => p.Description).HasMaxLength(512);
             b.Property(p => p.Labels).HasMaxLength(256);
             b.Property(p => p.JobPriority);
-            b.Property(p => p.JobArgs).HasMaxLength(512);
+            b.Property(p => p.JobArgs);
             b.Property(p => p.IsEnabled);
             b.Property(p => p.IsAbandoned);
             b.Property(p => p.JobType);
@@ -46,7 +46,8 @@ public static class PowerSchedulerDbContextModelBuilderExtensions
             b.ConfigureByConvention();
 
             b.Property(p => p.JobId);
-            b.Property(p => p.TaskArgs).HasMaxLength(512);
+            b.Property(p => p.JobArgs);
+            b.Property(p => p.TaskArgs);
             b.Property(p => p.TaskRunStatus);
             b.Property(p => p.ExpectedTriggerTime);
             b.Property(p => p.ActualTriggerTime);
@@ -56,6 +57,7 @@ public static class PowerSchedulerDbContextModelBuilderExtensions
             b.Property(p => p.TryCount);
 
             b.HasIndex(p => p.JobId);
+            b.HasIndex(p => p.ExpectedTriggerTime);
         });
 
         builder.Entity<OrleansQuery>(b =>
