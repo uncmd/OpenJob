@@ -13,9 +13,9 @@ namespace PowerScheduler.Runtime;
 
 public class PowerSchedulerActor : ActorBase, IPowerSchedulerActor, IRemindable
 {
-    private const string ReminderName = "PowerSchedulerReminder";
     private string versionOrleans;
     private string versionHost;
+    private IGrainReminder _grainReminder;
 
     private readonly PowerSchedulerOptions _options;
     private readonly IRepository<SchedulerJob, Guid> _jobRepository;
@@ -58,6 +58,25 @@ public class PowerSchedulerActor : ActorBase, IPowerSchedulerActor, IRemindable
         };
 
         return Task.FromResult(results.AsImmutable());
+    }
+
+    public async Task Start()
+    {
+        _grainReminder = await this.GetReminder(PowerSchedulerConsts.SchedulerReminderName);
+
+        if (_grainReminder == null)
+        {
+            await this.RegisterOrUpdateReminder(PowerSchedulerConsts.SchedulerReminderName, TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(1));
+        }
+    }
+
+    public async Task Stop()
+    {
+        if (_grainReminder != null)
+        {
+            await this.UnregisterReminder(_grainReminder);
+            _grainReminder = null;
+        }
     }
 
     public Task ReceiveReminder(string reminderName, TickStatus status)

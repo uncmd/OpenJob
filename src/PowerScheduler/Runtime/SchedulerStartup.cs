@@ -22,6 +22,8 @@ public class SchedulerStartup : IStartupTask
         var actor = _grainFactory.GetGrain<IPowerSchedulerActor>(Guid.Empty);
 
         await actor.SetVersion(GetOrleansVersion(), GetHostVersion());
+
+        await actor.Start();
     }
 
     private static string GetOrleansVersion()

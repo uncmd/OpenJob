@@ -15,4 +15,8 @@ public interface IPowerSchedulerActor : IGrainWithGuidKey
     Task SetVersion(string orleans, string host);
 
     Task<Immutable<Dictionary<string, string>>> GetExtendedProperties();
+
+    Task Start();
+
+    Task Stop();
 }
