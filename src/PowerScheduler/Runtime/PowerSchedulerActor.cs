@@ -90,77 +90,26 @@ public class PowerSchedulerActor : ActorBase, IPowerSchedulerActor, IRemindable
     {
         var stopwatch = Stopwatch.StartNew();
 
+        // 查询任务开启、时间表达任务、即将需要调度执行、在执行时间范围内的任务
         var jobs = await _jobRepository.GetListAsync(p => p.IsEnabled && !p.IsAbandoned &&
             p.TimeExpression != TimeExpression.None && p.TimeExpression != TimeExpression.Api &&
-            p.NextTriggerTime <= Clock.Now.AddSeconds(_options.SchedulePeriod.TotalSeconds * 1.3) &&
+            p.NextTriggerTime <= Clock.Now.AddSeconds(_options.SchedulePeriod.TotalSeconds * 2) &&
             (p.BeginTime == null || p.BeginTime >= Clock.Now) && 
             (p.EndTime == null || p.EndTime <= Clock.Now));
 
-        if (jobs.Any())
-        {
-            Logger.LogInformation("These {Count} jobs will be schedule", jobs.Count);
-
-            try
-            {
-                // 批量写日志表
-                List<SchedulerTask> schedulerTasks = new List<SchedulerTask>();
-                foreach (var job in jobs)
-                {
-                    var taskId = GuidGenerator.Create();
-                    schedulerTasks.Add(new SchedulerTask(taskId, job.Id, job.NextTriggerTime));
-                }
-
-                await _taskRepository.InsertManyAsync(schedulerTasks, true);
-
-                // 激活Actor等待调度执行
-                List<Task> tasks = new List<Task>();
-                foreach (var job in jobs)
-                {
-                    var schedulerTask = schedulerTasks.FirstOrDefault(p => p.JobId == job.Id);
-
-                    TimeSpan dueTime = TimeSpan.Zero;
-                    var targetTriggerTime = job.NextTriggerTime;
-                    if (targetTriggerTime < Clock.Now)
-                    {
-                        Logger.LogWarning("schedule delay, expect: {NextTriggerTime}, current: {Now}",
-                            targetTriggerTime, Clock.Now);
-
-                        if (job.MisfireStrategy == MisfireStrategy.Ignore &&
-                            job.TimeExpression != TimeExpression.Delayed)
-                        {
-                            Logger.LogInformation("MisfireStrategy is {MisfireStrategy}, continue this job, next trigger time is {NextTriggerTime}", job.MisfireStrategy, job.NextTriggerTime);
-
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        dueTime = targetTriggerTime - Clock.Now;
-                    }
-
-                    var taskActor = ActorClient.GetGrain<ISchedulerTaskActor>(schedulerTask.Id);
-                    var task = taskActor.DispatchTask(schedulerTask.Id, dueTime);
-                    tasks.Add(task);
-                }
-
-                await Task.WhenAll(tasks);
-
-                // 计算下一次调度时间
-                foreach (var job in jobs)
-                {
-                    RefreshJob(job);
-                }
-
-                await _jobRepository.UpdateManyAsync(jobs, true);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "dispatch job failed");
-            }
-        }
-        else
+        if (!jobs.Any())
         {
             Logger.LogInformation("current has no job to schedule");
+            return;
+        }
+
+        try
+        {
+            await ScheduleCronJob(jobs);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "dispatch job failed");
         }
 
         stopwatch.Stop();
@@ -170,6 +119,62 @@ public class PowerSchedulerActor : ActorBase, IPowerSchedulerActor, IRemindable
         {
             Logger.LogWarning("The database query is using too much time({Cost}ms), please check if the database load is too high!", stopwatch.ElapsedMilliseconds);
         }
+    }
+
+    protected virtual async Task ScheduleCronJob(List<SchedulerJob> jobs)
+    {
+        Logger.LogInformation("These jobs will be scheduled: {Jobs}", jobs);
+
+        // 批量写日志表
+        List<SchedulerTask> schedulerTasks = new List<SchedulerTask>();
+        foreach (var job in jobs)
+        {
+            var taskId = GuidGenerator.Create();
+            schedulerTasks.Add(new SchedulerTask(taskId, job.Id, job.NextTriggerTime));
+        }
+
+        await _taskRepository.InsertManyAsync(schedulerTasks, true);
+
+        // 激活Actor等待调度执行
+        List<Task> tasks = new List<Task>();
+        foreach (var job in jobs)
+        {
+            var schedulerTask = schedulerTasks.FirstOrDefault(p => p.JobId == job.Id);
+
+            TimeSpan dueTime = TimeSpan.Zero;
+            var targetTriggerTime = job.NextTriggerTime;
+            if (targetTriggerTime < Clock.Now)
+            {
+                Logger.LogWarning("schedule delay, expect: {NextTriggerTime}, current: {Now}",
+                    targetTriggerTime, Clock.Now);
+
+                if (job.MisfireStrategy == MisfireStrategy.Ignore &&
+                    job.TimeExpression != TimeExpression.Delayed)
+                {
+                    Logger.LogInformation("MisfireStrategy is {MisfireStrategy}, continue this job, next trigger time is {NextTriggerTime}", job.MisfireStrategy, job.NextTriggerTime);
+
+                    continue;
+                }
+            }
+            else
+            {
+                dueTime = targetTriggerTime - Clock.Now;
+            }
+
+            var taskActor = ActorClient.GetGrain<ISchedulerTaskActor>(schedulerTask.Id);
+            var task = taskActor.DispatchTask(schedulerTask.Id, dueTime);
+            tasks.Add(task);
+        }
+
+        await Task.WhenAll(tasks);
+
+        // 计算下一次调度时间
+        foreach (var job in jobs)
+        {
+            RefreshJob(job);
+        }
+
+        await _jobRepository.UpdateManyAsync(jobs, true);
     }
 
     protected virtual void RefreshJob(SchedulerJob schedulerJob)

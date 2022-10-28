@@ -19,8 +19,10 @@ public class PowerSchedulerDbContext : AbpDbContext<PowerSchedulerDbContext>
     {
     }
 
+    public DbSet<SchedulerApp> SchedulerApps { get; set; }
     public DbSet<SchedulerJob> SchedulerJobs { get; set; }
     public DbSet<SchedulerTask> SchedulerTasks { get; set; }
+    public DbSet<SchedulerWorker> SchedulerWorkers { get; set; }
 
     public DbSet<OrleansQuery> OrleansQueries { get; set; }
     public DbSet<OrleansMembershipVersionTable> OrleansMembershipVersions { get; set; }

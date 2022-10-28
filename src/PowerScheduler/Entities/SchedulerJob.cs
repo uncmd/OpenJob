@@ -7,6 +7,8 @@ public class SchedulerJob : FullAuditedAggregateRoot<Guid>
 {
     #region 任务基本信息
 
+    public Guid AppId { get; set; }
+
     public string Name { get; set; }
 
     public string Description { get; set; }
@@ -95,9 +97,22 @@ public class SchedulerJob : FullAuditedAggregateRoot<Guid>
     /// 过期策略(忽略、立即触发补偿一次)，默认为忽略
     /// </summary>
     public MisfireStrategy MisfireStrategy { get; set; }
-    #endregion
 
-    public virtual ICollection<SchedulerTask> SchedulerTasks { get; set; }
+    /// <summary>
+    /// 最低CPU核心数量，0代表不限
+    /// </summary>
+    public double MinCpuCores { get; set; }
+
+    /// <summary>
+    /// 最低内存空间，单位 GB，0代表不限
+    /// </summary>
+    public double MinMemory { get; set; }
+
+    /// <summary>
+    /// 最低磁盘空间，单位 GB，0代表不限
+    /// </summary>
+    public double MinDisk { get; set; }
+    #endregion
 
     public bool NeedNextTriggerTime => 
         TimeExpression == TimeExpression.Cron ||

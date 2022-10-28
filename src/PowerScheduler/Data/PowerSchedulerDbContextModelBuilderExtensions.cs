@@ -12,12 +12,24 @@ public static class PowerSchedulerDbContextModelBuilderExtensions
     {
         Check.NotNull(builder, nameof(builder));
 
+        builder.Entity<SchedulerApp>(b =>
+        {
+            b.ToTable(PowerSchedulerDbProperties.DbTablePrefix + "App", PowerSchedulerDbProperties.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(p => p.Name).IsRequired().HasMaxLength(128);
+            b.Property(p => p.Description).HasMaxLength(512);
+
+            b.HasIndex(p => p.Name).IsUnique();
+        });
+
         builder.Entity<SchedulerJob>(b =>
         {
             b.ToTable(PowerSchedulerDbProperties.DbTablePrefix + "Job", PowerSchedulerDbProperties.DbSchema);
             b.ConfigureByConvention();
 
-            b.Property(p => p.Name).HasMaxLength(128);
+            b.Property(p => p.AppId).IsRequired();
+            b.Property(p => p.Name).IsRequired().HasMaxLength(128);
             b.Property(p => p.Description).HasMaxLength(512);
             b.Property(p => p.Labels).HasMaxLength(256);
             b.Property(p => p.JobPriority);
@@ -36,8 +48,13 @@ public static class PowerSchedulerDbContextModelBuilderExtensions
             b.Property(p => p.NextTriggerTime);
             b.Property(p => p.LastTriggerTime);
             b.Property(p => p.MisfireStrategy);
+            b.Property(p => p.MinCpuCores);
+            b.Property(p => p.MinMemory);
+            b.Property(p => p.MinDisk);
 
-            b.HasMany(p => p.SchedulerTasks).WithOne().HasForeignKey(p => p.JobId).IsRequired();
+            b.HasIndex(p => p.AppId);
+            b.HasIndex(p => p.Name);
+            b.HasIndex(p => p.NextTriggerTime);
         });
 
         builder.Entity<SchedulerTask>(b =>
@@ -45,7 +62,8 @@ public static class PowerSchedulerDbContextModelBuilderExtensions
             b.ToTable(PowerSchedulerDbProperties.DbTablePrefix + "Task", PowerSchedulerDbProperties.DbSchema);
             b.ConfigureByConvention();
 
-            b.Property(p => p.JobId);
+            b.Property(p => p.AppId).IsRequired();
+            b.Property(p => p.JobId).IsRequired();
             b.Property(p => p.JobArgs);
             b.Property(p => p.TaskArgs);
             b.Property(p => p.TaskRunStatus);
@@ -56,8 +74,29 @@ public static class PowerSchedulerDbContextModelBuilderExtensions
             b.Property(p => p.Result).HasMaxLength(1024);
             b.Property(p => p.TryCount);
 
+            b.HasIndex(p => p.AppId);
             b.HasIndex(p => p.JobId);
             b.HasIndex(p => p.ExpectedTriggerTime);
+        });
+
+        builder.Entity<SchedulerWorker>(b =>
+        {
+            b.ToTable(PowerSchedulerDbProperties.DbTablePrefix + "Worker", PowerSchedulerDbProperties.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(p => p.AppId).IsRequired();
+            b.Property(p => p.Address).HasMaxLength(32);
+            b.Property(p => p.LastActiveTime);
+            b.Property(p => p.Client).HasMaxLength(128);
+            b.Property(p => p.Labels).HasMaxLength(256);
+            b.Property(p => p.CpuProcessors);
+            b.Property(p => p.CpuLoad);
+            b.Property(p => p.MemoryTotal);
+            b.Property(p => p.MemoryUsed);
+            b.Property(p => p.DiskTotal);
+            b.Property(p => p.DiskUsed);
+            b.Property(p => p.Score);
+
         });
 
         builder.Entity<OrleansQuery>(b =>

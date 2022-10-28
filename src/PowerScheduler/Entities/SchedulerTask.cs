@@ -5,6 +5,8 @@ namespace PowerScheduler.Entities;
 
 public class SchedulerTask : AuditedAggregateRoot<Guid>
 {
+    public Guid AppId { get; set; }
+
     public Guid JobId { get; private set; }
 
     public string JobArgs { get; set; }
