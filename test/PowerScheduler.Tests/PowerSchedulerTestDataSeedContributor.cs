@@ -1,7 +1,7 @@
 ﻿using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 
-namespace PowerScheduler.Tests;
+namespace PowerScheduler;
 
 public class PowerSchedulerTestDataSeedContributor : IDataSeedContributor, ITransientDependency
 {

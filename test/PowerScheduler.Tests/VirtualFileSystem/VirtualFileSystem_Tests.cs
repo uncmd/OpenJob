@@ -1,6 +1,4 @@
-﻿using PowerScheduler.Tests;
-
-namespace PowerScheduler.VirtualFileSystem;
+﻿namespace PowerScheduler.VirtualFileSystem;
 
 public class VirtualFileSystem_Tests : PowerSchedulerTestBase
 {

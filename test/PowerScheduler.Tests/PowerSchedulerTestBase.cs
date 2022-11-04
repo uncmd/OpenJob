@@ -6,7 +6,7 @@ using System.Text.Json;
 using Volo.Abp.AspNetCore.TestBase;
 using Volo.Abp.Uow;
 
-namespace PowerScheduler.Tests;
+namespace PowerScheduler;
 
 public class PowerSchedulerTestBase : PowerSchedulerTestBase<Startup>
 {

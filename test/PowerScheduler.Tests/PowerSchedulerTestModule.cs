@@ -17,7 +17,7 @@ using Volo.Abp.Modularity;
 using Volo.Abp.Threading;
 using Volo.Abp.VirtualFileSystem;
 
-namespace PowerScheduler.Tests;
+namespace PowerScheduler;
 
 [DependsOn(
     typeof(AbpAspNetCoreTestBaseModule),

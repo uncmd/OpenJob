@@ -1,6 +1,6 @@
 ﻿using Volo.Abp.Identity;
 
-namespace PowerScheduler.Tests.Services;
+namespace PowerScheduler.Services;
 
 public class SampleAppServiceTests : PowerSchedulerTestBase
 {

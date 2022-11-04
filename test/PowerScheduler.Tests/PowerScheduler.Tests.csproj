@@ -11,6 +11,7 @@
     <PreserveCompilationReferences>true</PreserveCompilationReferences>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <IsPackable>false</IsPackable>
+	<RootNamespace>PowerScheduler</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

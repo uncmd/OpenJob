@@ -2,7 +2,7 @@
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Identity;
 
-namespace PowerScheduler.Tests.Data;
+namespace PowerScheduler.Data;
 
 public class SampleRepositoryTests : PowerSchedulerTestBase
 {
