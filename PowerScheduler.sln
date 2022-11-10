@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PowerScheduler.Tests", "tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerScheduler.Shared", "src\PowerScheduler.Shared\PowerScheduler.Shared.csproj", "{AF2172BD-7746-4EC1-B98F-5FC2E04BB8FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerScheduler.Worker", "PowerScheduler.Worker\PowerScheduler.Worker.csproj", "{72DC592D-2566-450D-ABDB-D5B3DD525826}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerScheduler.Worker", "src\PowerScheduler.Worker\PowerScheduler.Worker.csproj", "{72DC592D-2566-450D-ABDB-D5B3DD525826}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

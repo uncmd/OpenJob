@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\PowerScheduler.Shared\PowerScheduler.Shared.csproj" />
+    <ProjectReference Include="..\PowerScheduler.Shared\PowerScheduler.Shared.csproj" />
   </ItemGroup>
 
 </Project>
