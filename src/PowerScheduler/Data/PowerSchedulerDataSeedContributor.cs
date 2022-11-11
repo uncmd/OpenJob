@@ -147,6 +147,18 @@ public class PowerSchedulerDataSeedContributor : IDataSeedContributor, ITransien
 
             await OrleansQueryRepository.InsertAsync(deleteMembershipTableEntries);
         }
+
+        // cleanupDefunctSiloEntries
+        var cleanupDefunctSiloEntries = await OrleansQueryRepository
+            .FirstOrDefaultAsync(p => p.QueryKey == cleanupDefunctSiloEntriesKey);
+        if (cleanupDefunctSiloEntries == null)
+        {
+            cleanupDefunctSiloEntries = new OrleansQuery(
+                cleanupDefunctSiloEntriesKey,
+                cleanupDefunctSiloEntriesText);
+
+            await OrleansQueryRepository.InsertAsync(cleanupDefunctSiloEntries);
+        }
     }
 
     protected async Task SeedReminders()
@@ -461,6 +473,14 @@ public class PowerSchedulerDataSeedContributor : IDataSeedContributor, ITransien
 	DELETE FROM OrleansMembershipVersionTable
 	WHERE DeploymentId = @DeploymentId AND @DeploymentId IS NOT NULL;";
 
+    const string cleanupDefunctSiloEntriesKey = "CleanupDefunctSiloEntriesKey";
+    const string cleanupDefunctSiloEntriesText = @"
+	DELETE FROM OrleansMembershipTable
+    WHERE DeploymentId = @DeploymentId
+        AND @DeploymentId IS NOT NULL
+        AND IAmAliveTime < @IAmAliveTime
+        AND Status != 3;";
+
     // Reminders
     const string upsertReminderRowKey = "UpsertReminderRowKey";
     const string upsertReminderRowText = @"
@@ -603,8 +623,6 @@ public class PowerSchedulerDataSeedContributor : IDataSeedContributor, ITransien
         UPDATE OrleansStorage
         SET
             PayloadBinary = @PayloadBinary,
-            PayloadJson = @PayloadJson,
-            PayloadXml = @PayloadXml,
             ModifiedOn = GETUTCDATE(),
             Version = Version + 1,
             @NewGrainStateVersion = Version + 1,
@@ -635,8 +653,6 @@ public class PowerSchedulerDataSeedContributor : IDataSeedContributor, ITransien
             GrainIdExtensionString,
             ServiceId,
             PayloadBinary,
-            PayloadJson,
-            PayloadXml,
             ModifiedOn,
             Version
         )
@@ -649,8 +665,6 @@ public class PowerSchedulerDataSeedContributor : IDataSeedContributor, ITransien
             @GrainIdExtensionString,
             @ServiceId,
             @PayloadBinary,
-            @PayloadJson,
-            @PayloadXml,
             GETUTCDATE(),
             1
          WHERE NOT EXISTS
@@ -685,8 +699,6 @@ public class PowerSchedulerDataSeedContributor : IDataSeedContributor, ITransien
     UPDATE OrleansStorage
     SET
         PayloadBinary = NULL,
-        PayloadJson = NULL,
-        PayloadXml = NULL,
         ModifiedOn = GETUTCDATE(),
         Version = Version + 1,
         @NewGrainStateVersion = Version + 1
@@ -715,8 +727,6 @@ public class PowerSchedulerDataSeedContributor : IDataSeedContributor, ITransien
     -- should guarantee the execution time is robustly basically the same from query-to-query.
     SELECT
         PayloadBinary,
-        PayloadXml,
-        PayloadJson,
         Version
     FROM
         OrleansStorage

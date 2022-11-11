@@ -18,10 +18,6 @@ public class OrleansStorage
 
     public byte[] PayloadBinary { get; set; }
 
-    public string PayloadXml { get; set; }
-
-    public string PayloadJson { get; set; }
-
     public DateTime ModifiedOn { get; set; }
 
     public int Version { get; set; }

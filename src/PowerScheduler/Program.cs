@@ -1,4 +1,3 @@
-using Orleans.Hosting;
 using PowerScheduler;
 using PowerScheduler.Data;
 using Serilog;

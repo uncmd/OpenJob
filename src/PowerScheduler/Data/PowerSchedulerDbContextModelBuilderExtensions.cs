@@ -167,8 +167,6 @@ public static class PowerSchedulerDbContextModelBuilderExtensions
             b.Property(p => p.GrainIdExtensionString).HasMaxLength(512);
             b.Property(p => p.ServiceId).HasMaxLength(150).IsRequired();
             b.Property(p => p.PayloadBinary);
-            b.Property(p => p.PayloadXml).HasColumnType("xml");
-            b.Property(p => p.PayloadJson);
             b.Property(p => p.ModifiedOn).IsRequired().HasColumnType("DATETIME2").HasPrecision(3);
             b.Property(p => p.Version);
 

@@ -13,7 +13,7 @@ using Volo.Abp.EntityFrameworkCore;
 namespace PowerScheduler.Migrations
 {
     [DbContext(typeof(PowerSchedulerDbContext))]
-    [Migration("20221024144105_Init")]
+    [Migration("20221111053250_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -85,7 +85,7 @@ namespace PowerScheduler.Migrations
                         .ValueGeneratedOnAdd()
                         .HasPrecision(3)
                         .HasColumnType("DATETIME2(3)")
-                        .HasDefaultValue(new DateTime(2022, 10, 24, 14, 41, 5, 497, DateTimeKind.Utc).AddTicks(8024));
+                        .HasDefaultValue(new DateTime(2022, 11, 11, 5, 32, 50, 354, DateTimeKind.Utc).AddTicks(8766));
 
                     b.Property<int>("Version")
                         .ValueGeneratedOnAdd()
@@ -175,12 +175,6 @@ namespace PowerScheduler.Migrations
                     b.Property<byte[]>("PayloadBinary")
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<string>("PayloadJson")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PayloadXml")
-                        .HasColumnType("xml");
-
                     b.Property<string>("ServiceId")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -200,9 +194,60 @@ namespace PowerScheduler.Migrations
                     b.ToTable("OrleansStorage", (string)null);
                 });
 
+            modelBuilder.Entity("PowerScheduler.Entities.SchedulerApp", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("ExtraProperties")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("PowerSchedulerApp", (string)null);
+                });
+
             modelBuilder.Entity("PowerScheduler.Entities.SchedulerJob", b =>
                 {
                     b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AppId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("BeginTime")
@@ -257,8 +302,7 @@ namespace PowerScheduler.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("JobArgs")
-                        .HasMaxLength(512)
-                        .HasColumnType("nvarchar(512)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("JobPriority")
                         .HasColumnType("int");
@@ -284,10 +328,20 @@ namespace PowerScheduler.Migrations
                     b.Property<int>("MaxTryCount")
                         .HasColumnType("int");
 
+                    b.Property<double>("MinCpuCores")
+                        .HasColumnType("float");
+
+                    b.Property<double>("MinDisk")
+                        .HasColumnType("float");
+
+                    b.Property<double>("MinMemory")
+                        .HasColumnType("float");
+
                     b.Property<int>("MisfireStrategy")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
 
@@ -310,6 +364,12 @@ namespace PowerScheduler.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AppId");
+
+                    b.HasIndex("Name");
+
+                    b.HasIndex("NextTriggerTime");
+
                     b.ToTable("PowerSchedulerJob", (string)null);
                 });
 
@@ -320,6 +380,9 @@ namespace PowerScheduler.Migrations
 
                     b.Property<DateTime>("ActualTriggerTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid>("AppId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -345,6 +408,9 @@ namespace PowerScheduler.Migrations
                     b.Property<DateTime>("FinishedTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("JobArgs")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("JobId")
                         .HasColumnType("uniqueidentifier");
 
@@ -361,8 +427,7 @@ namespace PowerScheduler.Migrations
                         .HasColumnType("nvarchar(1024)");
 
                     b.Property<string>("TaskArgs")
-                        .HasMaxLength(512)
-                        .HasColumnType("nvarchar(512)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("TaskRunStatus")
                         .HasColumnType("int");
@@ -376,9 +441,88 @@ namespace PowerScheduler.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AppId");
+
+                    b.HasIndex("ExpectedTriggerTime");
+
                     b.HasIndex("JobId");
 
                     b.ToTable("PowerSchedulerTask", (string)null);
+                });
+
+            modelBuilder.Entity("PowerScheduler.Entities.SchedulerWorker", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<Guid>("AppId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Client")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<double>("CpuLoad")
+                        .HasColumnType("float");
+
+                    b.Property<int>("CpuProcessors")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<double>("DiskTotal")
+                        .HasColumnType("float");
+
+                    b.Property<double>("DiskUsed")
+                        .HasColumnType("float");
+
+                    b.Property<string>("ExtraProperties")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<string>("Labels")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTime>("LastActiveTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<double>("MemoryTotal")
+                        .HasColumnType("float");
+
+                    b.Property<double>("MemoryUsed")
+                        .HasColumnType("float");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PowerSchedulerWorker", (string)null);
                 });
 
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLog", b =>
@@ -1781,15 +1925,6 @@ namespace PowerScheduler.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PowerScheduler.Entities.SchedulerTask", b =>
-                {
-                    b.HasOne("PowerScheduler.Entities.SchedulerJob", null)
-                        .WithMany("SchedulerTasks")
-                        .HasForeignKey("JobId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLogAction", b =>
                 {
                     b.HasOne("Volo.Abp.AuditLogging.AuditLog", null)
@@ -1935,11 +2070,6 @@ namespace PowerScheduler.Migrations
             modelBuilder.Entity("PowerScheduler.Entities.Orleans.OrleansMembershipVersionTable", b =>
                 {
                     b.Navigation("OrleansMembershipTables");
-                });
-
-            modelBuilder.Entity("PowerScheduler.Entities.SchedulerJob", b =>
-                {
-                    b.Navigation("SchedulerTasks");
                 });
 
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLog", b =>

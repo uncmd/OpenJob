@@ -320,7 +320,7 @@ namespace PowerScheduler.Migrations
                 columns: table => new
                 {
                     DeploymentId = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    Timestamp = table.Column<DateTime>(type: "DATETIME2(3)", precision: 3, nullable: false, defaultValue: new DateTime(2022, 10, 24, 14, 41, 5, 497, DateTimeKind.Utc).AddTicks(8024)),
+                    Timestamp = table.Column<DateTime>(type: "DATETIME2(3)", precision: 3, nullable: false, defaultValue: new DateTime(2022, 11, 11, 5, 32, 50, 354, DateTimeKind.Utc).AddTicks(8766)),
                     Version = table.Column<int>(type: "int", nullable: false, defaultValue: 0)
                 },
                 constraints: table =>
@@ -369,8 +369,6 @@ namespace PowerScheduler.Migrations
                     GrainIdExtensionString = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
                     ServiceId = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     PayloadBinary = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    PayloadXml = table.Column<string>(type: "xml", nullable: true),
-                    PayloadJson = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ModifiedOn = table.Column<DateTime>(type: "DATETIME2(3)", precision: 3, nullable: false),
                     Version = table.Column<int>(type: "int", nullable: false)
                 },
@@ -379,15 +377,35 @@ namespace PowerScheduler.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PowerSchedulerApp",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
+                    ExtraProperties = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
+                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PowerSchedulerApp", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PowerSchedulerJob",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
+                    AppId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
                     Labels = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     JobPriority = table.Column<int>(type: "int", nullable: false),
-                    JobArgs = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
+                    JobArgs = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsEnabled = table.Column<bool>(type: "bit", nullable: false),
                     IsAbandoned = table.Column<bool>(type: "bit", nullable: false),
                     JobType = table.Column<int>(type: "int", nullable: false),
@@ -402,6 +420,9 @@ namespace PowerScheduler.Migrations
                     NextTriggerTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastTriggerTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     MisfireStrategy = table.Column<int>(type: "int", nullable: false),
+                    MinCpuCores = table.Column<double>(type: "float", nullable: false),
+                    MinMemory = table.Column<double>(type: "float", nullable: false),
+                    MinDisk = table.Column<double>(type: "float", nullable: false),
                     ExtraProperties = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
                     CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -415,6 +436,63 @@ namespace PowerScheduler.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PowerSchedulerJob", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PowerSchedulerTask",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AppId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    JobId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    JobArgs = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TaskArgs = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TaskRunStatus = table.Column<int>(type: "int", nullable: false),
+                    ExpectedTriggerTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ActualTriggerTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FinishedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    WorkerHost = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: true),
+                    Result = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: true),
+                    TryCount = table.Column<int>(type: "int", nullable: false),
+                    ExtraProperties = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
+                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PowerSchedulerTask", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PowerSchedulerWorker",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AppId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true),
+                    LastActiveTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Client = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
+                    Labels = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    CpuProcessors = table.Column<int>(type: "int", nullable: false),
+                    CpuLoad = table.Column<double>(type: "float", nullable: false),
+                    MemoryUsed = table.Column<double>(type: "float", nullable: false),
+                    MemoryTotal = table.Column<double>(type: "float", nullable: false),
+                    DiskUsed = table.Column<double>(type: "float", nullable: false),
+                    DiskTotal = table.Column<double>(type: "float", nullable: false),
+                    Score = table.Column<int>(type: "int", nullable: false),
+                    ExtraProperties = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
+                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PowerSchedulerWorker", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -709,38 +787,6 @@ namespace PowerScheduler.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PowerSchedulerTask",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    JobId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TaskArgs = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
-                    TaskRunStatus = table.Column<int>(type: "int", nullable: false),
-                    ExpectedTriggerTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ActualTriggerTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    FinishedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    WorkerHost = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: true),
-                    Result = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: true),
-                    TryCount = table.Column<int>(type: "int", nullable: false),
-                    ExtraProperties = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PowerSchedulerTask", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PowerSchedulerTask_PowerSchedulerJob_JobId",
-                        column: x => x.JobId,
-                        principalTable: "PowerSchedulerJob",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AbpEntityPropertyChanges",
                 columns: table => new
                 {
@@ -1000,6 +1046,37 @@ namespace PowerScheduler.Migrations
                 .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
+                name: "IX_PowerSchedulerApp_Name",
+                table: "PowerSchedulerApp",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PowerSchedulerJob_AppId",
+                table: "PowerSchedulerJob",
+                column: "AppId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PowerSchedulerJob_Name",
+                table: "PowerSchedulerJob",
+                column: "Name");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PowerSchedulerJob_NextTriggerTime",
+                table: "PowerSchedulerJob",
+                column: "NextTriggerTime");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PowerSchedulerTask_AppId",
+                table: "PowerSchedulerTask",
+                column: "AppId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PowerSchedulerTask_ExpectedTriggerTime",
+                table: "PowerSchedulerTask",
+                column: "ExpectedTriggerTime");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PowerSchedulerTask_JobId",
                 table: "PowerSchedulerTask",
                 column: "JobId");
@@ -1074,7 +1151,16 @@ namespace PowerScheduler.Migrations
                 name: "OrleansStorage");
 
             migrationBuilder.DropTable(
+                name: "PowerSchedulerApp");
+
+            migrationBuilder.DropTable(
+                name: "PowerSchedulerJob");
+
+            migrationBuilder.DropTable(
                 name: "PowerSchedulerTask");
+
+            migrationBuilder.DropTable(
+                name: "PowerSchedulerWorker");
 
             migrationBuilder.DropTable(
                 name: "AbpEntityChanges");
@@ -1096,9 +1182,6 @@ namespace PowerScheduler.Migrations
 
             migrationBuilder.DropTable(
                 name: "OrleansMembershipVersionTable");
-
-            migrationBuilder.DropTable(
-                name: "PowerSchedulerJob");
 
             migrationBuilder.DropTable(
                 name: "AbpAuditLogs");
