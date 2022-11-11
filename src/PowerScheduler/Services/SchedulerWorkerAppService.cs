@@ -16,6 +16,6 @@ public class SchedulerWorkerAppService :
     public SchedulerWorkerAppService(IRepository<SchedulerWorker, Guid> workerRepository)
         : base(workerRepository)
     {
-        
+
     }
 }

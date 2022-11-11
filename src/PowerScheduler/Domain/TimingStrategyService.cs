@@ -24,10 +24,10 @@ public class TimingStrategyService : ISingletonDependency
     public DateTime? CalculateNextTriggerTime(SchedulerJob schedulerJob)
     {
         return CalculateNextTriggerTime(
-            schedulerJob.NextTriggerTime, 
-            schedulerJob.TimeExpression, 
-            schedulerJob.TimeExpressionValue, 
-            schedulerJob.BeginTime, 
+            schedulerJob.NextTriggerTime,
+            schedulerJob.TimeExpression,
+            schedulerJob.TimeExpressionValue,
+            schedulerJob.BeginTime,
             schedulerJob.EndTime);
     }
 

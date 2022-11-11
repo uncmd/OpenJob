@@ -10,7 +10,7 @@ namespace PowerScheduler;
 
 public class PowerSchedulerTestBase : PowerSchedulerTestBase<Startup>
 {
-    
+
 }
 
 public abstract class PowerSchedulerTestBase<TStartup> : AbpAspNetCoreIntegratedTestBase<TStartup>

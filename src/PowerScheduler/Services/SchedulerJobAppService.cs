@@ -5,17 +5,17 @@ using Volo.Abp.Domain.Repositories;
 
 namespace PowerScheduler.Services;
 
-public class SchedulerJobAppService : 
+public class SchedulerJobAppService :
     CrudAppService<
-        SchedulerJob, 
-        SchedulerJobDto, 
-        Guid, 
-        GetAndFilterListDto, 
+        SchedulerJob,
+        SchedulerJobDto,
+        Guid,
+        GetAndFilterListDto,
         CreateUpdateJobDto>
 {
     public SchedulerJobAppService(IRepository<SchedulerJob, Guid> jobRepository)
         : base(jobRepository)
     {
-        
+
     }
 }

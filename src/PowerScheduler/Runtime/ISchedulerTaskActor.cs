@@ -1,6 +1,4 @@
-﻿using Orleans;
-
-namespace PowerScheduler.Runtime;
+﻿namespace PowerScheduler.Runtime;
 
 public interface ISchedulerTaskActor : IGrainWithGuidKey
 {

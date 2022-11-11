@@ -5,5 +5,5 @@ namespace PowerScheduler.Localization;
 [LocalizationResourceName("PowerScheduler")]
 public class PowerSchedulerResource
 {
-    
+
 }

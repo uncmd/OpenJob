@@ -1,5 +1,4 @@
-﻿using Orleans.Hosting;
-using PowerScheduler;
+﻿using PowerScheduler;
 using PowerScheduler.Runtime;
 
 namespace Microsoft.Extensions.Hosting;

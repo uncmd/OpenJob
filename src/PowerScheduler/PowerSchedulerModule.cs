@@ -121,7 +121,7 @@ public class PowerSchedulerModule : AbpModule
                 typeof(PowerSchedulerModule).Assembly
             );
         });
-        
+
         PreConfigure<OpenIddictBuilder>(builder =>
         {
             builder.AddValidation(options =>

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Options;
-using Orleans;
 using Orleans.Concurrency;
 using Orleans.Runtime;
 using PowerScheduler.Actors;
@@ -94,7 +93,7 @@ public class PowerSchedulerActor : ActorBase, IPowerSchedulerActor, IRemindable
         var jobs = await _jobRepository.GetListAsync(p => p.IsEnabled && !p.IsAbandoned &&
             p.TimeExpression != TimeExpression.None && p.TimeExpression != TimeExpression.Api &&
             p.NextTriggerTime <= Clock.Now.AddSeconds(_options.SchedulePeriod.TotalSeconds * 2) &&
-            (p.BeginTime == null || p.BeginTime >= Clock.Now) && 
+            (p.BeginTime == null || p.BeginTime >= Clock.Now) &&
             (p.EndTime == null || p.EndTime <= Clock.Now));
 
         if (!jobs.Any())

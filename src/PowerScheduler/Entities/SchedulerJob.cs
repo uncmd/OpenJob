@@ -114,7 +114,7 @@ public class SchedulerJob : FullAuditedAggregateRoot<Guid>
     public double MinDisk { get; set; }
     #endregion
 
-    public bool NeedNextTriggerTime => 
+    public bool NeedNextTriggerTime =>
         TimeExpression == TimeExpression.Cron ||
         TimeExpression == TimeExpression.FixedRate ||
         TimeExpression == TimeExpression.SecondDelay;
