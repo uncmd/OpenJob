@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@abp/aspnetcore.components.server.leptonxlitetheme@~1.0.0-rc.7":
+"@abp/aspnetcore.components.server.leptonxlitetheme@~1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@abp/aspnetcore.components.server.leptonxlitetheme/-/aspnetcore.components.server.leptonxlitetheme-1.0.0.tgz#4596962196b093d88eb9cd29bff07a295b7e6b79"
   integrity sha512-6EvvXE3JaefsGUEOBr60T9V19lE1r6Y0S9Lkud1GS0GQzhIHKqff7XsU0e5UlQpo+NODfCPaIsKHEzpvvJtuiQ==
@@ -17,7 +17,7 @@
     "@abp/bootstrap" "~6.0.0"
     "@abp/font-awesome" "~6.0.0"
 
-"@abp/aspnetcore.mvc.ui.theme.leptonxlite@~1.0.0-rc.7":
+"@abp/aspnetcore.mvc.ui.theme.leptonxlite@~1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@abp/aspnetcore.mvc.ui.theme.leptonxlite/-/aspnetcore.mvc.ui.theme.leptonxlite-1.0.0.tgz#7201bb27af8777294fe8412de83d3c21f9284030"
   integrity sha512-ecaBUwF2reiQVEUcnVhNv12Wc7TwhWfjuO04Pz2dLpZ3V1MKXhJnqxh1bPO3ArsmagDrdLV/eoH5SOCjRprUsA==
