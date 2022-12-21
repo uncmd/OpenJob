@@ -37,6 +37,8 @@ public class PowerSchedulerActor : ActorBase, IPowerSchedulerActor, IRemindable
     {
         await base.OnActivateAsync(cancellationToken);
 
+        Logger.LogInformation("PowerScheduler activate, it will register a timer period: {SchedulePeriod}", _options.SchedulePeriod);
+
         RegisterTimer(Schedule, null, TimeSpan.FromSeconds(5), _options.SchedulePeriod);
     }
 
@@ -65,7 +67,12 @@ public class PowerSchedulerActor : ActorBase, IPowerSchedulerActor, IRemindable
 
         if (_grainReminder == null)
         {
-            await this.RegisterOrUpdateReminder(PowerSchedulerConsts.SchedulerReminderName, TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(1));
+            var dueTime = TimeSpan.FromSeconds(5);
+            var period = TimeSpan.FromMinutes(1);
+
+            Logger.LogInformation("Register PowerScheduler Reminder: {ReminderName}, dueTime: {DueTime}, period: {Period}", PowerSchedulerConsts.SchedulerReminderName, dueTime, period);
+
+            _grainReminder = await this.RegisterOrUpdateReminder(PowerSchedulerConsts.SchedulerReminderName, dueTime, period);
         }
     }
 
@@ -73,6 +80,8 @@ public class PowerSchedulerActor : ActorBase, IPowerSchedulerActor, IRemindable
     {
         if (_grainReminder != null)
         {
+            Logger.LogInformation("Unregister PowerScheduler Reminder: {ReminderName}", _grainReminder.ReminderName);
+
             await this.UnregisterReminder(_grainReminder);
             _grainReminder = null;
         }
@@ -122,9 +131,9 @@ public class PowerSchedulerActor : ActorBase, IPowerSchedulerActor, IRemindable
 
     protected virtual async Task ScheduleCronJob(List<SchedulerJob> jobs)
     {
-        Logger.LogInformation("These jobs will be scheduled: {Jobs}", jobs);
+        Logger.LogDebug("These jobs will be scheduled: {@Jobs}", jobs);
 
-        // 批量写日志表
+        // 批量写任务表
         List<SchedulerTask> schedulerTasks = new List<SchedulerTask>();
         foreach (var job in jobs)
         {
