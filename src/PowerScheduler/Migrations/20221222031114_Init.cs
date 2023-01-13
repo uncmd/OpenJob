@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -319,7 +320,7 @@ namespace PowerScheduler.Migrations
                 columns: table => new
                 {
                     DeploymentId = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    Timestamp = table.Column<DateTime>(type: "DATETIME2(3)", precision: 3, nullable: false, defaultValue: new DateTime(2022, 11, 11, 5, 32, 50, 354, DateTimeKind.Utc).AddTicks(8766)),
+                    Timestamp = table.Column<DateTime>(type: "DATETIME2(3)", precision: 3, nullable: false, defaultValue: new DateTime(2022, 12, 22, 3, 11, 14, 330, DateTimeKind.Utc).AddTicks(2393)),
                     Version = table.Column<int>(type: "int", nullable: false, defaultValue: 0)
                 },
                 constraints: table =>
@@ -405,8 +406,7 @@ namespace PowerScheduler.Migrations
                     Labels = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     JobPriority = table.Column<int>(type: "int", nullable: false),
                     JobArgs = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    IsAbandoned = table.Column<bool>(type: "bit", nullable: false),
+                    JobStatus = table.Column<int>(type: "int", nullable: false),
                     JobType = table.Column<int>(type: "int", nullable: false),
                     ExecutionMode = table.Column<int>(type: "int", nullable: false),
                     ProcessorInfo = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -416,12 +416,16 @@ namespace PowerScheduler.Migrations
                     EndTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     MaxTryCount = table.Column<int>(type: "int", nullable: false),
                     TimeoutSecond = table.Column<int>(type: "int", nullable: false),
-                    NextTriggerTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    NextTriggerTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     LastTriggerTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     MisfireStrategy = table.Column<int>(type: "int", nullable: false),
                     MinCpuCores = table.Column<double>(type: "float", nullable: false),
                     MinMemory = table.Column<double>(type: "float", nullable: false),
                     MinDisk = table.Column<double>(type: "float", nullable: false),
+                    NumberOfRuns = table.Column<long>(type: "bigint", nullable: false),
+                    MaxNumberOfRuns = table.Column<long>(type: "bigint", nullable: false),
+                    NumberOfErrors = table.Column<long>(type: "bigint", nullable: false),
+                    MaxNumberOfErrors = table.Column<long>(type: "bigint", nullable: false),
                     ExtraProperties = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
                     CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),

@@ -83,7 +83,7 @@ namespace PowerScheduler.Migrations
                         .ValueGeneratedOnAdd()
                         .HasPrecision(3)
                         .HasColumnType("DATETIME2(3)")
-                        .HasDefaultValue(new DateTime(2022, 11, 11, 5, 32, 50, 354, DateTimeKind.Utc).AddTicks(8766));
+                        .HasDefaultValue(new DateTime(2022, 12, 22, 3, 11, 14, 330, DateTimeKind.Utc).AddTicks(2393));
 
                     b.Property<int>("Version")
                         .ValueGeneratedOnAdd()
@@ -287,22 +287,19 @@ namespace PowerScheduler.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("ExtraProperties");
 
-                    b.Property<bool>("IsAbandoned")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
 
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("bit");
-
                     b.Property<string>("JobArgs")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("JobPriority")
+                        .HasColumnType("int");
+
+                    b.Property<int>("JobStatus")
                         .HasColumnType("int");
 
                     b.Property<int>("JobType")
@@ -322,6 +319,12 @@ namespace PowerScheduler.Migrations
 
                     b.Property<DateTime?>("LastTriggerTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<long>("MaxNumberOfErrors")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("MaxNumberOfRuns")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("MaxTryCount")
                         .HasColumnType("int");
@@ -343,8 +346,14 @@ namespace PowerScheduler.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
 
-                    b.Property<DateTime>("NextTriggerTime")
+                    b.Property<DateTime?>("NextTriggerTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<long>("NumberOfErrors")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("NumberOfRuns")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("ProcessorInfo")
                         .HasMaxLength(256)

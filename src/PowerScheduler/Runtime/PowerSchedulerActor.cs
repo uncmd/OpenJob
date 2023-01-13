@@ -98,10 +98,11 @@ public class PowerSchedulerActor : ActorBase, IPowerSchedulerActor, IRemindable
     {
         var stopwatch = Stopwatch.StartNew();
 
-        // 查询任务开启、时间表达任务、即将需要调度执行、在执行时间范围内的任务
-        var jobs = await _jobRepository.GetListAsync(p => p.IsEnabled && !p.IsAbandoned &&
-            p.TimeExpression != TimeExpression.None && p.TimeExpression != TimeExpression.Api &&
-            p.NextTriggerTime <= Clock.Now.AddSeconds(_options.SchedulePeriod.TotalSeconds * 2) &&
+        // 查询即将要执行的任务
+        var startAt = Clock.Now.AddSeconds(_options.SchedulePeriod.TotalSeconds * 1.5);
+        var jobs = await _jobRepository.GetListAsync(p => 
+            (p.JobStatus == JobStatus.Ready || p.JobStatus == JobStatus.Running || p.JobStatus == JobStatus.ErrorToReady) &&
+            p.NextTriggerTime <= startAt &&
             (p.BeginTime == null || p.BeginTime >= Clock.Now) &&
             (p.EndTime == null || p.EndTime <= Clock.Now));
 
@@ -138,7 +139,7 @@ public class PowerSchedulerActor : ActorBase, IPowerSchedulerActor, IRemindable
         foreach (var job in jobs)
         {
             var taskId = GuidGenerator.Create();
-            schedulerTasks.Add(new SchedulerTask(taskId, job.Id, job.NextTriggerTime));
+            schedulerTasks.Add(new SchedulerTask(taskId, job.Id, job.NextTriggerTime.Value));
         }
 
         await _taskRepository.InsertManyAsync(schedulerTasks, true);
@@ -166,7 +167,7 @@ public class PowerSchedulerActor : ActorBase, IPowerSchedulerActor, IRemindable
             }
             else
             {
-                dueTime = targetTriggerTime - Clock.Now;
+                dueTime = targetTriggerTime.Value - Clock.Now;
             }
 
             var taskActor = ActorClient.GetGrain<ISchedulerTaskActor>(schedulerTask.Id);
@@ -179,42 +180,9 @@ public class PowerSchedulerActor : ActorBase, IPowerSchedulerActor, IRemindable
         // 计算下一次调度时间
         foreach (var job in jobs)
         {
-            RefreshJob(job);
+            job.Increment(_timingStrategyService, Clock.Now);
         }
 
         await _jobRepository.UpdateManyAsync(jobs, true);
-    }
-
-    protected virtual void RefreshJob(SchedulerJob schedulerJob)
-    {
-        try
-        {
-            // 计算任务下一次调度时间
-            var nextTriggerTime = _timingStrategyService.CalculateNextTriggerTime(schedulerJob);
-
-            if (nextTriggerTime.HasValue)
-            {
-                schedulerJob.NextTriggerTime = nextTriggerTime.Value;
-            }
-            else
-            {
-                if (schedulerJob.NeedNextTriggerTime)
-                {
-                    Logger.LogWarning("won't be scheduled anymore, system will set the status to Abandoned: {SchedulerJob}", schedulerJob);
-
-                    schedulerJob.IsAbandoned = true;
-                }
-
-                if (schedulerJob.TimeExpression == TimeExpression.Delayed)
-                {
-                    schedulerJob.IsEnabled = false;
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "refresh job failed, system will set job to Abandoned: {SchedulerJob}", schedulerJob);
-            schedulerJob.IsAbandoned = false;
-        }
     }
 }

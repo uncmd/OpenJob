@@ -34,8 +34,7 @@ public static class PowerSchedulerDbContextModelBuilderExtensions
             b.Property(p => p.Labels).HasMaxLength(256);
             b.Property(p => p.JobPriority);
             b.Property(p => p.JobArgs);
-            b.Property(p => p.IsEnabled);
-            b.Property(p => p.IsAbandoned);
+            b.Property(p => p.JobStatus);
             b.Property(p => p.JobType);
             b.Property(p => p.ExecutionMode);
             b.Property(p => p.ProcessorInfo).HasMaxLength(256);
@@ -51,6 +50,10 @@ public static class PowerSchedulerDbContextModelBuilderExtensions
             b.Property(p => p.MinCpuCores);
             b.Property(p => p.MinMemory);
             b.Property(p => p.MinDisk);
+            b.Property(p => p.NumberOfRuns);
+            b.Property(p => p.MaxNumberOfRuns);
+            b.Property(p => p.NumberOfErrors);
+            b.Property(p => p.MaxNumberOfErrors);
 
             b.HasIndex(p => p.AppId);
             b.HasIndex(p => p.Name);
