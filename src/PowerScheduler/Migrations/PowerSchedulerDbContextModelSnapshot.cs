@@ -83,7 +83,7 @@ namespace PowerScheduler.Migrations
                         .ValueGeneratedOnAdd()
                         .HasPrecision(3)
                         .HasColumnType("DATETIME2")
-                        .HasDefaultValue(new DateTime(2023, 1, 13, 5, 47, 53, 264, DateTimeKind.Utc).AddTicks(5322));
+                        .HasDefaultValue(new DateTime(2023, 2, 20, 8, 29, 51, 478, DateTimeKind.Utc).AddTicks(7148));
 
                     b.Property<int>("Version")
                         .ValueGeneratedOnAdd()
