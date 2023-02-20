@@ -100,6 +100,13 @@ public class SchedulerTaskActor : ActorBase, ISchedulerTaskActor
         await _taskManager.Update4TriggerSucceed(taskId, TaskRunStatus.Succeed, Clock.Now, taskTrackerAddress);
     }
 
+    /// <summary>
+    /// 下发任务到Worker执行
+    /// </summary>
+    /// <param name="job"></param>
+    /// <param name="task"></param>
+    /// <param name="finalWorkersIpList"></param>
+    /// <returns></returns>
     private async Task PostRequest(SchedulerJob job, SchedulerTask task, List<string> finalWorkersIpList)
     {
         // TODO: 发送请求

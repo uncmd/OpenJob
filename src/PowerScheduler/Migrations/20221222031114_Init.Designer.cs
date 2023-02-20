@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PowerScheduler.Data;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,17 +13,18 @@ using Volo.Abp.EntityFrameworkCore;
 namespace PowerScheduler.Migrations
 {
     [DbContext(typeof(PowerSchedulerDbContext))]
-    partial class PowerSchedulerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221222031114_Init")]
+    partial class Init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("_Abp_DatabaseProvider", EfCoreDatabaseProvider.SqlServer)
-                .HasAnnotation("ProductVersion", "7.0.2")
+                .HasAnnotation("ProductVersion", "6.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
             modelBuilder.Entity("PowerScheduler.Entities.Orleans.OrleansMembershipTable", b =>
                 {
@@ -47,7 +49,7 @@ namespace PowerScheduler.Migrations
 
                     b.Property<DateTime>("IAmAliveTime")
                         .HasPrecision(3)
-                        .HasColumnType("DATETIME2");
+                        .HasColumnType("DATETIME2(3)");
 
                     b.Property<int>("ProxyPort")
                         .HasColumnType("int");
@@ -59,7 +61,7 @@ namespace PowerScheduler.Migrations
 
                     b.Property<DateTime>("StartTime")
                         .HasPrecision(3)
-                        .HasColumnType("DATETIME2");
+                        .HasColumnType("DATETIME2(3)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -82,8 +84,8 @@ namespace PowerScheduler.Migrations
                     b.Property<DateTime>("Timestamp")
                         .ValueGeneratedOnAdd()
                         .HasPrecision(3)
-                        .HasColumnType("DATETIME2")
-                        .HasDefaultValue(new DateTime(2023, 1, 13, 5, 47, 53, 264, DateTimeKind.Utc).AddTicks(5322));
+                        .HasColumnType("DATETIME2(3)")
+                        .HasDefaultValue(new DateTime(2022, 12, 22, 3, 11, 14, 330, DateTimeKind.Utc).AddTicks(2393));
 
                     b.Property<int>("Version")
                         .ValueGeneratedOnAdd()
@@ -133,7 +135,7 @@ namespace PowerScheduler.Migrations
 
                     b.Property<DateTime>("StartTime")
                         .HasPrecision(3)
-                        .HasColumnType("DATETIME2");
+                        .HasColumnType("DATETIME2(3)");
 
                     b.Property<int>("Version")
                         .HasColumnType("int");
@@ -168,7 +170,7 @@ namespace PowerScheduler.Migrations
 
                     b.Property<DateTime>("ModifiedOn")
                         .HasPrecision(3)
-                        .HasColumnType("DATETIME2");
+                        .HasColumnType("DATETIME2(3)");
 
                     b.Property<byte[]>("PayloadBinary")
                         .HasColumnType("varbinary(max)");
@@ -792,95 +794,6 @@ namespace PowerScheduler.Migrations
                     b.HasIndex("EntityChangeId");
 
                     b.ToTable("AbpEntityPropertyChanges", (string)null);
-                });
-
-            modelBuilder.Entity("Volo.Abp.FeatureManagement.FeatureDefinitionRecord", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("AllowedProviders")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("DefaultValue")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("DisplayName")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("ExtraProperties")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("ExtraProperties");
-
-                    b.Property<string>("GroupName")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<bool>("IsAvailableToHost")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsVisibleToClients")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<string>("ParentName")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<string>("ValueType")
-                        .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GroupName");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("AbpFeatures", (string)null);
-                });
-
-            modelBuilder.Entity("Volo.Abp.FeatureManagement.FeatureGroupDefinitionRecord", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("DisplayName")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("ExtraProperties")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("ExtraProperties");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("AbpFeatureGroups", (string)null);
                 });
 
             modelBuilder.Entity("Volo.Abp.FeatureManagement.FeatureValue", b =>
@@ -1868,59 +1781,6 @@ namespace PowerScheduler.Migrations
                     b.ToTable("OpenIddictTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Volo.Abp.PermissionManagement.PermissionDefinitionRecord", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("DisplayName")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("ExtraProperties")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("ExtraProperties");
-
-                    b.Property<string>("GroupName")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<byte>("MultiTenancySide")
-                        .HasColumnType("tinyint");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<string>("ParentName")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<string>("Providers")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<string>("StateCheckers")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GroupName");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("AbpPermissions", (string)null);
-                });
-
             modelBuilder.Entity("Volo.Abp.PermissionManagement.PermissionGrant", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1953,34 +1813,6 @@ namespace PowerScheduler.Migrations
                         .HasFilter("[TenantId] IS NOT NULL");
 
                     b.ToTable("AbpPermissionGrants", (string)null);
-                });
-
-            modelBuilder.Entity("Volo.Abp.PermissionManagement.PermissionGroupDefinitionRecord", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("DisplayName")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("ExtraProperties")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("ExtraProperties");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("AbpPermissionGroups", (string)null);
                 });
 
             modelBuilder.Entity("Volo.Abp.SettingManagement.Setting", b =>

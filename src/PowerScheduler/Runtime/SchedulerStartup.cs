@@ -18,9 +18,16 @@ public class SchedulerStartup : IStartupTask
 
     public async Task Execute(CancellationToken cancellationToken)
     {
-        var actor = _grainFactory.GetGrain<IPowerSchedulerActor>(Guid.Empty);
+        var actor = _grainFactory.GetGrain<IPowerSchedulerActor>(0);
 
-        await actor.SetVersion(GetOrleansVersion(), GetHostVersion());
+        var orleansVersion = GetOrleansVersion();
+        var hostVersion = GetHostVersion();
+
+        _logger.LogInformation("OrleansVersion: {OrleansVersion}, HostVersion: {HostVersion}", orleansVersion, hostVersion);
+
+        await actor.SetVersion(orleansVersion, hostVersion);
+
+        _logger.LogInformation("PowerScheduler starting ... ");
 
         await actor.Start();
     }

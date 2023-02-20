@@ -2,7 +2,7 @@
 
 namespace PowerScheduler.Runtime;
 
-public interface IPowerSchedulerActor : IGrainWithGuidKey
+public interface IPowerSchedulerActor : IGrainWithIntegerKey
 {
     /// <summary>
     /// 设置版本信息

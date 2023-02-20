@@ -21,8 +21,19 @@ public class TimingStrategyService : ISingletonDependency
         }
     }
 
-    public DateTime? CalculateNextTriggerTime(SchedulerJob schedulerJob)
+    public DateTime? CalculateNextTriggerTime(SchedulerJob schedulerJob, DateTime startAt)
     {
+        // 如果不是正常的触发器状态，则返回 null
+        if (schedulerJob.JobStatus != JobStatus.Ready
+            && schedulerJob.JobStatus != JobStatus.ErrorToReady
+            && schedulerJob.JobStatus != JobStatus.Running
+            && schedulerJob.JobStatus != JobStatus.Blocked)
+            return null;
+
+        // 如果已经设置了 NextTriggerTime 且其值大于当前时间，则返回当前 NextTriggerTime（可能因为其他方式修改了改值导致触发时间不是精准计算的时间）
+        if (schedulerJob.NextTriggerTime != null && schedulerJob.NextTriggerTime.Value > startAt) 
+            return schedulerJob.NextTriggerTime;
+
         return CalculateNextTriggerTime(
             schedulerJob.NextTriggerTime,
             schedulerJob.TimeExpression,
