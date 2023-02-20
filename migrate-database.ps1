@@ -1,0 +1,1 @@
+dotnet run --project src/PowerScheduler --migrate-database

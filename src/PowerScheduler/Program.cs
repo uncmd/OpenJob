@@ -10,9 +10,11 @@ var loggerConfiguration = new LoggerConfiguration()
 #else
     .MinimumLevel.Information()
 #endif
-    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
     .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
-    .MinimumLevel.Override("Orleans", LogEventLevel.Information)
+    .MinimumLevel.Override("Volo.Abp", LogEventLevel.Warning)
+    .MinimumLevel.Override("Orleans", LogEventLevel.Warning)
+    .MinimumLevel.Override("OpenIddict", LogEventLevel.Warning)
     .Enrich.FromLogContext()
     .WriteTo.Async(c => c.File(new CompactJsonFormatter(), "Logs/logs.txt", rollingInterval: RollingInterval.Day))
     .WriteTo.Async(c => c.Console());
