@@ -17,20 +17,17 @@ public class PowerSchedulerActor : ActorBase, IPowerSchedulerActor, IRemindable
     private IGrainReminder _grainReminder;
 
     private readonly PowerSchedulerOptions _options;
-    private readonly IRepository<SchedulerJob, Guid> _jobRepository;
+    private readonly ISchedulerJobRepository _jobRepository;
     private readonly IRepository<SchedulerTask, Guid> _taskRepository;
-    private readonly TimingStrategyService _timingStrategyService;
 
     public PowerSchedulerActor(
         IOptions<PowerSchedulerOptions> options,
-        IRepository<SchedulerJob, Guid> jobRepository,
-        IRepository<SchedulerTask, Guid> taskRepository,
-        TimingStrategyService timingStrategyService)
+        ISchedulerJobRepository jobRepository,
+        IRepository<SchedulerTask, Guid> taskRepository)
     {
         _options = options.Value;
         _jobRepository = jobRepository;
         _taskRepository = taskRepository;
-        _timingStrategyService = timingStrategyService;
     }
 
     public override async Task OnActivateAsync(CancellationToken cancellationToken)
@@ -89,7 +86,7 @@ public class PowerSchedulerActor : ActorBase, IPowerSchedulerActor, IRemindable
 
     public Task ReceiveReminder(string reminderName, TickStatus status)
     {
-        Logger.LogInformation("PowerSchedulerActor ReceiveReminder {ReminderName}: {Status}", reminderName, status);
+        Logger.LogInformation("ReceiveReminder {ReminderName}: {Status}", reminderName, status);
 
         return Task.CompletedTask;
     }
@@ -99,13 +96,7 @@ public class PowerSchedulerActor : ActorBase, IPowerSchedulerActor, IRemindable
         var stopwatch = Stopwatch.StartNew();
 
         // 查询即将要执行的任务
-        var startAt = Clock.Now.AddSeconds(_options.SchedulePeriod.TotalSeconds * 1.5);
-        var jobs = await _jobRepository.GetListAsync(p => 
-            (p.JobStatus == JobStatus.Ready || p.JobStatus == JobStatus.Running || p.JobStatus == JobStatus.ErrorToReady) &&
-            p.NextTriggerTime <= startAt &&
-            (p.BeginTime == null || p.BeginTime >= Clock.Now) &&
-            (p.EndTime == null || p.EndTime <= Clock.Now));
-
+        var jobs = await _jobRepository.GetPreJobs();
         if (!jobs.Any())
         {
             Logger.LogInformation("current has no job to schedule");
@@ -150,39 +141,47 @@ public class PowerSchedulerActor : ActorBase, IPowerSchedulerActor, IRemindable
         {
             var schedulerTask = schedulerTasks.FirstOrDefault(p => p.JobId == job.Id);
 
-            TimeSpan dueTime = TimeSpan.Zero;
-            var targetTriggerTime = job.NextTriggerTime;
-            if (targetTriggerTime < Clock.Now)
-            {
-                Logger.LogWarning("schedule delay, expect: {NextTriggerTime}, current: {Now}",
-                    targetTriggerTime, Clock.Now);
-
-                if (job.MisfireStrategy == MisfireStrategy.Ignore &&
-                    job.TimeExpression != TimeExpression.Delayed)
-                {
-                    Logger.LogInformation("MisfireStrategy is {MisfireStrategy}, continue this job, next trigger time is {NextTriggerTime}", job.MisfireStrategy, job.NextTriggerTime);
-
-                    continue;
-                }
-            }
-            else
-            {
-                dueTime = targetTriggerTime.Value - Clock.Now;
-            }
+            var dueTime = GetJobDueTime(job);
+            if (dueTime == null)
+                continue;
 
             var taskActor = ActorClient.GetGrain<ISchedulerTaskActor>(schedulerTask.Id);
-            var task = taskActor.DispatchTask(schedulerTask.Id, dueTime);
+            var task = taskActor.DispatchTask(schedulerTask.Id, dueTime.Value);
             tasks.Add(task);
         }
 
         await Task.WhenAll(tasks);
 
-        // 计算下一次调度时间
-        foreach (var job in jobs)
+        await _jobRepository.RefreshNextTriggerTime(jobs);
+    }
+
+    /// <summary>
+    /// 到期时间，若小于当前时间(过期)则应用过期策略
+    /// </summary>
+    /// <param name="job"></param>
+    /// <returns></returns>
+    private TimeSpan? GetJobDueTime(SchedulerJob job)
+    {
+        TimeSpan dueTime = TimeSpan.Zero;
+        var targetTriggerTime = job.NextTriggerTime;
+        if (targetTriggerTime < Clock.Now)
         {
-            job.Increment(_timingStrategyService, Clock.Now);
+            Logger.LogWarning("schedule delay, expect: {NextTriggerTime}, current: {Now}",
+                targetTriggerTime, Clock.Now);
+
+            if (job.MisfireStrategy == MisfireStrategy.Ignore &&
+                job.TimeExpression != TimeExpression.Delayed)
+            {
+                Logger.LogInformation("MisfireStrategy is {MisfireStrategy}, continue this job, next trigger time is {NextTriggerTime}", job.MisfireStrategy, job.NextTriggerTime);
+
+                return null;
+            }
+        }
+        else
+        {
+            dueTime = targetTriggerTime.Value - Clock.Now;
         }
 
-        await _jobRepository.UpdateManyAsync(jobs, true);
+        return dueTime;
     }
 }
