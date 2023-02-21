@@ -8,10 +8,18 @@ public sealed class SchedulerApp : AuditedAggregateRoot<Guid>
 
     public string Description { get; set; }
 
+    public bool IsEnabled { get; set; }
+
     private SchedulerApp() { }
 
     public SchedulerApp(Guid id, string name) : base(id)
     {
         Name = name;
+        IsEnabled = true;
+    }
+
+    public override string ToString()
+    {
+        return $"{base.ToString()}, Name = {Name}";
     }
 }

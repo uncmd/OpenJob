@@ -12,7 +12,7 @@ namespace PowerScheduler.Domain;
 
 public interface ISchedulerJobRepository : IRepository<SchedulerJob, Guid>
 {
-    Task<List<SchedulerJob>> GetPreJobs();
+    Task<List<SchedulerJob>> GetPreJobs(Guid appId);
 
     Task RefreshNextTriggerTime(List<SchedulerJob> jobs);
 }
@@ -36,13 +36,14 @@ public class SchedulerJobRepository :
         _timingStrategyService = timingStrategyService;
     }
 
-    public async Task<List<SchedulerJob>> GetPreJobs()
+    public async Task<List<SchedulerJob>> GetPreJobs(Guid appId)
     {
         var dbSet = await GetDbSetAsync();
         // 查询即将要执行的任务
         var startAt = Clock.Now.AddSeconds(_options.SchedulePeriod.TotalSeconds * 1.5);
         return await dbSet
-            .Where(p => (p.JobStatus == JobStatus.Ready || p.JobStatus == JobStatus.Running || p.JobStatus == JobStatus.ErrorToReady) &&
+            .Where(p => p.AppId == appId &&
+                (p.JobStatus == JobStatus.Ready || p.JobStatus == JobStatus.Running || p.JobStatus == JobStatus.ErrorToReady) &&
                 p.NextTriggerTime <= startAt &&
                 (p.BeginTime == null || p.BeginTime >= Clock.Now) &&
                 (p.EndTime == null || p.EndTime <= Clock.Now))

@@ -19,6 +19,7 @@ public static class PowerSchedulerDbContextModelBuilderExtensions
 
             b.Property(p => p.Name).IsRequired().HasMaxLength(128);
             b.Property(p => p.Description).HasMaxLength(512);
+            b.Property(p => p.IsEnabled);
 
             b.HasIndex(p => p.Name).IsUnique();
         });
