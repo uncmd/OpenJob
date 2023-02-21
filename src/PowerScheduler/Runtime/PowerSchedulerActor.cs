@@ -129,8 +129,7 @@ public class PowerSchedulerActor : ActorBase, IPowerSchedulerActor, IRemindable
         List<SchedulerTask> schedulerTasks = new List<SchedulerTask>();
         foreach (var job in jobs)
         {
-            var taskId = GuidGenerator.Create();
-            schedulerTasks.Add(new SchedulerTask(taskId, job.Id, job.NextTriggerTime.Value));
+            schedulerTasks.Add(new SchedulerTask(GuidGenerator.Create(), job.Id, job.NextTriggerTime.Value));
         }
 
         await _taskRepository.InsertManyAsync(schedulerTasks, true);

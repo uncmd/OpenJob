@@ -2,9 +2,16 @@
 
 namespace PowerScheduler.Entities;
 
-public class SchedulerApp : AuditedAggregateRoot<Guid>
+public sealed class SchedulerApp : AuditedAggregateRoot<Guid>
 {
-    public string Name { get; set; }
+    public string Name { get; private set; }
 
     public string Description { get; set; }
+
+    private SchedulerApp() { }
+
+    public SchedulerApp(Guid id, string name) : base(id)
+    {
+        Name = name;
+    }
 }

@@ -8,9 +8,9 @@ public sealed class SchedulerJob : FullAuditedAggregateRoot<Guid>
 {
     #region 任务基本信息
 
-    public Guid AppId { get; set; }
+    public Guid AppId { get; private set; }
 
-    public string Name { get; set; }
+    public string Name { get; private set; }
 
     public string Description { get; set; }
 
@@ -137,6 +137,21 @@ public sealed class SchedulerJob : FullAuditedAggregateRoot<Guid>
     /// </remarks>
     public long MaxNumberOfErrors { get; set; }
     #endregion
+
+    private SchedulerJob() { }
+
+    public SchedulerJob(Guid id, Guid appId, string name) 
+        : base(id)
+    {
+        AppId = appId;
+        Name = name;
+
+        JobPriority = JobPriority.Normal;
+        JobStatus = JobStatus.NotStart;
+        JobType = JobType.CSharp;
+        ExecutionMode = ExecutionMode.Standalone;
+
+    }
 
     /// <summary>
     /// 下一次可执行检查

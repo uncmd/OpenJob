@@ -3,7 +3,7 @@ using Volo.Abp.Domain.Entities.Auditing;
 
 namespace PowerScheduler.Entities;
 
-public class SchedulerTask : AuditedAggregateRoot<Guid>
+public sealed class SchedulerTask : AuditedAggregateRoot<Guid>
 {
     public Guid AppId { get; set; }
 
@@ -42,14 +42,7 @@ public class SchedulerTask : AuditedAggregateRoot<Guid>
     /// </summary>
     public int TryCount { get; set; }
 
-    protected SchedulerTask() { }
-
-    public SchedulerTask(Guid jobId, DateTime expectedTriggerTime)
-    {
-        JobId = jobId;
-        ExpectedTriggerTime = expectedTriggerTime;
-        TaskRunStatus = TaskRunStatus.WaitingDispatch;
-    }
+    private SchedulerTask() { }
 
     public SchedulerTask(Guid id, Guid jobId, DateTime expectedTriggerTime)
         : base(id)

@@ -2,7 +2,7 @@
 
 namespace PowerScheduler.Entities;
 
-public class SchedulerWorker : AuditedAggregateRoot<Guid>, IComparable<SchedulerWorker>
+public sealed class SchedulerWorker : AuditedAggregateRoot<Guid>, IComparable<SchedulerWorker>
 {
     public Guid AppId { get; set; }
 
@@ -42,6 +42,13 @@ public class SchedulerWorker : AuditedAggregateRoot<Guid>, IComparable<Scheduler
     /// 机器分数
     /// </summary>
     public int Score { get; set; }
+
+    private SchedulerWorker() { }
+
+    public SchedulerWorker(Guid id, Guid appId) : base(id)
+    {
+        AppId = appId;
+    }
 
     /// <summary>
     /// 计算机器分数
