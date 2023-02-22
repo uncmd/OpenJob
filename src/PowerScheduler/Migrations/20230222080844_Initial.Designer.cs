@@ -13,7 +13,7 @@ using Volo.Abp.EntityFrameworkCore;
 namespace PowerScheduler.Migrations
 {
     [DbContext(typeof(PowerSchedulerDbContext))]
-    [Migration("20230220082951_Initial")]
+    [Migration("20230222080844_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -22,7 +22,7 @@ namespace PowerScheduler.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("_Abp_DatabaseProvider", EfCoreDatabaseProvider.SqlServer)
-                .HasAnnotation("ProductVersion", "7.0.2")
+                .HasAnnotation("ProductVersion", "7.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -86,7 +86,7 @@ namespace PowerScheduler.Migrations
                         .ValueGeneratedOnAdd()
                         .HasPrecision(3)
                         .HasColumnType("DATETIME2")
-                        .HasDefaultValue(new DateTime(2023, 2, 20, 8, 29, 51, 478, DateTimeKind.Utc).AddTicks(7148));
+                        .HasDefaultValue(new DateTime(2023, 2, 22, 8, 8, 44, 586, DateTimeKind.Utc).AddTicks(3726));
 
                     b.Property<int>("Version")
                         .ValueGeneratedOnAdd()
@@ -222,6 +222,9 @@ namespace PowerScheduler.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("ExtraProperties");
 
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("datetime2")
                         .HasColumnName("LastModificationTime");
@@ -280,6 +283,9 @@ namespace PowerScheduler.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("nvarchar(512)");
 
+                    b.Property<int>("DispatchStrategy")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("EndTime")
                         .HasColumnType("datetime2");
 
@@ -303,9 +309,6 @@ namespace PowerScheduler.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("JobStatus")
-                        .HasColumnType("int");
-
-                    b.Property<int>("JobType")
                         .HasColumnType("int");
 
                     b.Property<string>("Labels")
@@ -361,6 +364,9 @@ namespace PowerScheduler.Migrations
                     b.Property<string>("ProcessorInfo")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
+
+                    b.Property<int>("ProcessorType")
+                        .HasColumnType("int");
 
                     b.Property<int>("TimeExpression")
                         .HasColumnType("int");

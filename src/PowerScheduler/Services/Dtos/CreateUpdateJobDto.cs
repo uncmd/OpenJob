@@ -18,7 +18,7 @@ public class CreateUpdateJobDto
 
     public bool IsAbandoned { get; set; }
 
-    public JobType JobType { get; set; }
+    public ProcessorType JobType { get; set; }
 
     public ExecutionMode ExecutionMode { get; set; }
 

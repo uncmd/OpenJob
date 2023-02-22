@@ -1,4 +1,4 @@
-﻿namespace PowerScheduler.Runtime;
+﻿namespace PowerScheduler.Runtime.Actors;
 
 public interface ISchedulerJobActor : IGrainWithGuidKey
 {

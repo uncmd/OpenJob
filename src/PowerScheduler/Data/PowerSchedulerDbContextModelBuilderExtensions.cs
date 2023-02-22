@@ -36,7 +36,7 @@ public static class PowerSchedulerDbContextModelBuilderExtensions
             b.Property(p => p.JobPriority);
             b.Property(p => p.JobArgs);
             b.Property(p => p.JobStatus);
-            b.Property(p => p.JobType);
+            b.Property(p => p.ProcessorType);
             b.Property(p => p.ExecutionMode);
             b.Property(p => p.ProcessorInfo).HasMaxLength(256);
             b.Property(p => p.TimeExpression);
@@ -48,6 +48,7 @@ public static class PowerSchedulerDbContextModelBuilderExtensions
             b.Property(p => p.NextTriggerTime);
             b.Property(p => p.LastTriggerTime);
             b.Property(p => p.MisfireStrategy);
+            b.Property(p => p.DispatchStrategy);
             b.Property(p => p.MinCpuCores);
             b.Property(p => p.MinMemory);
             b.Property(p => p.MinDisk);

@@ -1,47 +1,36 @@
-﻿using PowerScheduler.Actors;
-using PowerScheduler.Domain;
-using PowerScheduler.Entities;
+﻿using PowerScheduler.Entities;
 using PowerScheduler.Enums;
+using PowerScheduler.Model;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.Domain.Services;
 
-namespace PowerScheduler.Runtime;
+namespace PowerScheduler.Domain;
 
-public class SchedulerTaskActor : ActorBase, ISchedulerTaskActor
+public class DispatchService : DomainService
 {
     private readonly IRepository<SchedulerJob, Guid> _jobRepository;
     private readonly IRepository<SchedulerTask, Guid> _taskRepository;
     private readonly WorkerClusterManager _workerManager;
     private readonly SchedulerTaskManager _taskManager;
-    private readonly HttpClient _httpClient;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public SchedulerTaskActor(
+    public DispatchService(
         IRepository<SchedulerJob, Guid> jobRepository,
         IRepository<SchedulerTask, Guid> taskRepository,
         WorkerClusterManager workerManager,
         SchedulerTaskManager taskManager,
-        HttpClient httpClient)
+        IHttpClientFactory httpClientFactory)
     {
         _jobRepository = jobRepository;
         _taskRepository = taskRepository;
         _workerManager = workerManager;
         _taskManager = taskManager;
-        _httpClient = httpClient;
+        _httpClientFactory = httpClientFactory;
     }
 
-    public Task DispatchTask(Guid taskId, TimeSpan dueTime)
+    public async Task Dispatch(Guid taskId)
     {
-        Logger.LogInformation("received dispatch request, dispatch starts in {DueTime}s, taskId: {TaskId}", dueTime.TotalSeconds, taskId);
-
-        RegisterTimer(DispatchCore, taskId, dueTime, Timeout.InfiniteTimeSpan);
-
-        return Task.CompletedTask;
-    }
-
-    private async Task DispatchCore(object state)
-    {
-        var taskId = (Guid)state;
         var schedulerTask = await _taskRepository.GetAsync(taskId);
-
         if (schedulerTask == null)
         {
             Logger.LogWarning("[Dispatcher-{TaskId}] cancel dispatch due to task has been deleted!", taskId);
@@ -81,7 +70,7 @@ public class SchedulerTaskActor : ActorBase, ISchedulerTaskActor
         var wokers = await _workerManager.GetSuitableWorkers(schedulerJob);
         if (wokers.IsNullOrEmpty())
         {
-            Logger.LogWarning("[Dispatcher-{JobName}|{TaskId}] cancel dispatch job due to no worker available", schedulerJob.Name, taskId);
+            Logger.LogWarning("[Dispatcher-{JobName}|{TaskId}] cancel dispatch job due to no worker available for app:{AppId}", schedulerJob.Name, taskId, schedulerJob.AppId);
 
             await _taskManager.Update4TriggerFailed(taskId, TaskRunStatus.Failed, Clock.Now, Clock.Now, PowerSchedulerConsts.EmptyAddress, PowerSchedulerConsts.NoWorkerAvailable);
 
@@ -109,14 +98,31 @@ public class SchedulerTaskActor : ActorBase, ISchedulerTaskActor
     /// <returns></returns>
     private async Task PostRequest(SchedulerJob job, SchedulerTask task, List<string> finalWorkersIpList)
     {
-        // TODO: 发送请求
+        var req = new ServerScheduleJobReq
+        {
+            JobId = job.Id,
+            TaskId = task.Id,
+            AllWorkerAddress = finalWorkersIpList,
+            ExecutionMode = job.ExecutionMode,
+            JobArgs = job.JobArgs,
+            ProcessorInfo = job.ProcessorInfo,
+            ProcessorType = job.ProcessorType,
+            TaskArgs = task.TaskArgs,
+            TaskRetryNum = 0,
+            TimeExpression = job.TimeExpression,
+            TimeExpressionValue = job.TimeExpressionValue,
+            TimeoutSecond = job.TimeoutSecond,
+        };
+
         var request = new HttpRequestMessage()
         {
             Method = HttpMethod.Post,
-            RequestUri = new Uri(finalWorkersIpList.FirstOrDefault()),
-
+            RequestUri = ServerURLFactory.DispatchJob2Worker(finalWorkersIpList.FirstOrDefault()),
+            Content = JsonContent.Create(req)
         };
 
-        await _httpClient.SendAsync(request);
+        using HttpClient client = _httpClientFactory.CreateClient();
+
+        await client.SendAsync(request);
     }
 }

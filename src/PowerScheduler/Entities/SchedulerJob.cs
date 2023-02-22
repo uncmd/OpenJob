@@ -35,9 +35,15 @@ public sealed class SchedulerJob : FullAuditedAggregateRoot<Guid>
 
     #region 执行方式
 
-    public JobType JobType { get; set; }
-
+    /// <summary>
+    /// 任务执行类型，单机、广播、MR
+    /// </summary>
     public ExecutionMode ExecutionMode { get; set; }
+
+    /// <summary>
+    /// 处理器类型（Http、CSharp、Shell、Go、Python、Sql）
+    /// </summary>
+    public ProcessorType ProcessorType { get; set; }
 
     /// <summary>
     /// 执行器信息（执行器全称FullName）
@@ -95,6 +101,11 @@ public sealed class SchedulerJob : FullAuditedAggregateRoot<Guid>
     public MisfireStrategy MisfireStrategy { get; set; }
 
     /// <summary>
+    /// 下发策略
+    /// </summary>
+    public DispatchStrategy DispatchStrategy { get; set; }
+
+    /// <summary>
     /// 最低CPU核心数量，0代表不限
     /// </summary>
     public double MinCpuCores { get; set; }
@@ -148,7 +159,7 @@ public sealed class SchedulerJob : FullAuditedAggregateRoot<Guid>
 
         JobPriority = JobPriority.Normal;
         JobStatus = JobStatus.NotStart;
-        JobType = JobType.CSharp;
+        ProcessorType = ProcessorType.CSharp;
         ExecutionMode = ExecutionMode.Standalone;
 
     }

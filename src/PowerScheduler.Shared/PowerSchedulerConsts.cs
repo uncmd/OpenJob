@@ -7,4 +7,9 @@ public static class PowerSchedulerConsts
     public const string EmptyAddress = "N/A";
 
     public const string NoWorkerAvailable = "no worker available";
+
+    public const string WorkerPath = "worker";
+    public const string HandlerRunJob = "runJob";
+    public const string HandlerStopTask = "stopTask";
+    public const string HandlerQueryTaskStatus = "queryTaskStatus";
 }

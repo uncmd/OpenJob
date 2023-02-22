@@ -1,7 +1,7 @@
 ﻿using Orleans.Runtime;
 using System.Reflection;
 
-namespace PowerScheduler.Runtime;
+namespace PowerScheduler.Runtime.Actors;
 
 public class SchedulerStartup : IStartupTask
 {

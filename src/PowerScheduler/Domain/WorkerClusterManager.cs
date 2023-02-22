@@ -1,4 +1,5 @@
 ﻿using PowerScheduler.Entities;
+using PowerScheduler.Enums;
 using PowerScheduler.Runtime.Workers;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Domain.Services;
@@ -30,8 +31,14 @@ public class WorkerClusterManager : DomainService
         // 过滤
         workers.RemoveAll(worker => FilterWorker(worker, job));
 
-        // 排序
-        workers.Sort((a, b) => b.CalculateScore() - a.CalculateScore());
+        if (job.DispatchStrategy == DispatchStrategy.HealthFirst)
+        {
+            workers.Sort((a, b) => b.CalculateScore() - a.CalculateScore());
+        }
+        else if (job.DispatchStrategy == DispatchStrategy.Random)
+        {
+            workers = workers.OrderBy(_ => Guid.NewGuid()).ToList();
+        }
 
         // TODO: 限制集群大小
 

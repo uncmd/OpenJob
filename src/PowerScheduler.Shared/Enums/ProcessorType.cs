@@ -1,6 +1,9 @@
 ﻿namespace PowerScheduler.Enums;
 
-public enum JobType
+/// <summary>
+/// 处理器类型
+/// </summary>
+public enum ProcessorType
 {
     CSharp,
     Http,

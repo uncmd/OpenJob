@@ -6,7 +6,7 @@ using PowerScheduler.Enums;
 using System.Diagnostics;
 using Volo.Abp.Domain.Repositories;
 
-namespace PowerScheduler.Runtime;
+namespace PowerScheduler.Runtime.Actors;
 
 public class SchedulerJobActor : ActorBase, ISchedulerJobActor
 {
@@ -32,7 +32,7 @@ public class SchedulerJobActor : ActorBase, ISchedulerJobActor
         var jobs = await _jobRepository.GetPreJobs(appId);
         if (!jobs.Any())
         {
-            Logger.LogInformation("current has no job to schedule");
+            Logger.LogInformation("current no job to schedule");
             return;
         }
 
@@ -84,6 +84,7 @@ public class SchedulerJobActor : ActorBase, ISchedulerJobActor
 
         await Task.WhenAll(tasks);
 
+        // 计算下一次调度时间
         await _jobRepository.RefreshNextTriggerTime(jobs);
     }
 

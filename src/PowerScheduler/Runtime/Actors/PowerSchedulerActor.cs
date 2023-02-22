@@ -5,7 +5,7 @@ using PowerScheduler.Actors;
 using PowerScheduler.Entities;
 using Volo.Abp.Domain.Repositories;
 
-namespace PowerScheduler.Runtime;
+namespace PowerScheduler.Runtime.Actors;
 
 public class PowerSchedulerActor : ActorBase, IPowerSchedulerActor, IRemindable
 {

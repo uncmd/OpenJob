@@ -392,7 +392,7 @@ namespace PowerScheduler.Migrations
                 columns: table => new
                 {
                     DeploymentId = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    Timestamp = table.Column<DateTime>(type: "DATETIME2(3)", precision: 3, nullable: false, defaultValue: new DateTime(2023, 2, 20, 8, 29, 51, 478, DateTimeKind.Utc).AddTicks(7148)),
+                    Timestamp = table.Column<DateTime>(type: "DATETIME2(3)", precision: 3, nullable: false, defaultValue: new DateTime(2023, 2, 22, 8, 8, 44, 586, DateTimeKind.Utc).AddTicks(3726)),
                     Version = table.Column<int>(type: "int", nullable: false, defaultValue: 0)
                 },
                 constraints: table =>
@@ -480,8 +480,8 @@ namespace PowerScheduler.Migrations
                     JobPriority = table.Column<int>(type: "int", nullable: false),
                     JobArgs = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     JobStatus = table.Column<int>(type: "int", nullable: false),
-                    JobType = table.Column<int>(type: "int", nullable: false),
                     ExecutionMode = table.Column<int>(type: "int", nullable: false),
+                    ProcessorType = table.Column<int>(type: "int", nullable: false),
                     ProcessorInfo = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     TimeExpression = table.Column<int>(type: "int", nullable: false),
                     TimeExpressionValue = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -492,6 +492,7 @@ namespace PowerScheduler.Migrations
                     NextTriggerTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     LastTriggerTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     MisfireStrategy = table.Column<int>(type: "int", nullable: false),
+                    DispatchStrategy = table.Column<int>(type: "int", nullable: false),
                     MinCpuCores = table.Column<double>(type: "float", nullable: false),
                     MinMemory = table.Column<double>(type: "float", nullable: false),
                     MinDisk = table.Column<double>(type: "float", nullable: false),
