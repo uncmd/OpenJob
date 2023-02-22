@@ -28,6 +28,12 @@ public class DispatchService : DomainService
         _httpClientFactory = httpClientFactory;
     }
 
+    /// <summary>
+    /// 将任务从Server派发到Worker
+    /// </summary>
+    /// <remarks>只会派发当前状态为等待派发的任务</remarks>
+    /// <param name="taskId"></param>
+    /// <returns></returns>
     public async Task Dispatch(Guid taskId)
     {
         var schedulerTask = await _taskRepository.GetAsync(taskId);

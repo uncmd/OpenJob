@@ -1,5 +1,5 @@
 ﻿using PowerScheduler;
-using PowerScheduler.Runtime.Actors;
+using PowerScheduler.Runtime;
 
 namespace Microsoft.Extensions.Hosting;
 

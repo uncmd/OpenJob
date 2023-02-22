@@ -1,6 +1,5 @@
 ﻿using PowerScheduler.Entities;
 using PowerScheduler.Enums;
-using PowerScheduler.Runtime.Workers;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Domain.Services;
 
@@ -9,14 +8,14 @@ namespace PowerScheduler.Domain;
 public class WorkerClusterManager : DomainService
 {
     private readonly IRepository<SchedulerWorker, Guid> _workerRepository;
-    private readonly List<IWorkerFilter> _workerFilters;
+    private readonly WorkerFilterService _workerFilterService;
 
     public WorkerClusterManager(
         IRepository<SchedulerWorker, Guid> workerRepository,
-        IEnumerable<IWorkerFilter> workerFilters)
+        WorkerFilterService workerFilterService)
     {
         _workerRepository = workerRepository;
-        _workerFilters = workerFilters.ToList();
+        _workerFilterService = workerFilterService;
     }
 
     /// <summary>
@@ -29,7 +28,7 @@ public class WorkerClusterManager : DomainService
         var workers = await _workerRepository.GetListAsync(p => p.AppId == job.AppId);
 
         // 过滤
-        workers.RemoveAll(worker => FilterWorker(worker, job));
+        workers.RemoveAll(worker => _workerFilterService.FilterWorker(worker, job));
 
         if (job.DispatchStrategy == DispatchStrategy.HealthFirst)
         {
@@ -43,17 +42,5 @@ public class WorkerClusterManager : DomainService
         // TODO: 限制集群大小
 
         return workers;
-    }
-
-    private bool FilterWorker(SchedulerWorker worker, SchedulerJob job)
-    {
-        foreach (var workerFilter in _workerFilters)
-        {
-            if (workerFilter.Filter(worker, job))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }
