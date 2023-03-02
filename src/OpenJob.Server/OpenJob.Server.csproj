@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+	<RootNamespace>OpenJob</RootNamespace>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Orleans.Reminders" Version="7.1.0" />
+		<PackageReference Include="Microsoft.Orleans.Server" Version="7.1.0" />
+		<PackageReference Include="Volo.Abp.Autofac" Version="7.0.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\OpenJob.EntityFrameworkCore\OpenJob.EntityFrameworkCore.csproj" />
+	</ItemGroup>
+
+</Project>
