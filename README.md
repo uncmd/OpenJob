@@ -1,4 +1,4 @@
-[![build](https://github.com/uncmd/PowerScheduler/actions/workflows/build.yml/badge.svg)](https://github.com/uncmd/PowerScheduler/actions/workflows/build.yml)
+[![build](https://github.com/uncmd/OpenJob/actions/workflows/build.yml/badge.svg)](https://github.com/uncmd/OpenJob/actions/workflows/build.yml)
 
 ## About this solution
 
@@ -6,7 +6,7 @@ This is a minimalist, non-layered startup solution with the ABP Framework. All t
 
 ## How to run
 
-The application needs to connect to a database. Run the following command in the `PowerScheduler` directory:
+The application needs to connect to a database. Run the following command in the `OpenJob` directory:
 
 ````bash
 dotnet run --migrate-database
