@@ -2,9 +2,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenJob.Data;
+using OpenJob.EntityFrameworkCore;
 using Serilog;
 using Volo.Abp;
 using Volo.Abp.Data;
+using Volo.Abp.Uow;
 
 namespace OpenJob.DbMigrator;
 
@@ -31,10 +33,20 @@ public class DbMigratorHostedService : IHostedService
         {
             await application.InitializeAsync();
 
+            var databaseProvider = "";
+            var unitOfWork = application.ServiceProvider.GetRequiredService<UnitOfWorkManager>();
+            using (var uw = unitOfWork.Begin())
+            {
+                var dbContext = application.ServiceProvider
+                    .GetRequiredService<OpenJobDbContext>();
+
+                databaseProvider = dbContext.Model["_Abp_DatabaseProvider"]?.ToString();
+            }
+
             await application
                 .ServiceProvider
                 .GetRequiredService<OpenJobDbMigrationService>()
-                .MigrateAsync();
+                .MigrateAsync(databaseProvider);
 
             await application.ShutdownAsync();
 

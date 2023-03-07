@@ -30,7 +30,7 @@ public class OpenJobDbContext :
     ITenantManagementDbContext
 {
     /* Add DbSet properties for your Aggregate Roots / Entities here. */
-
+    
     public DbSet<AppInfo> AppInfos { get; set; }
     public DbSet<JobInfo> JobInfos { get; set; }
     public DbSet<TaskInfo> TaskInfos { get; set; }

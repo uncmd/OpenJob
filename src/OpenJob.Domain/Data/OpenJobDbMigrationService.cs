@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using OpenJob.Orleans;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Volo.Abp.Data;
@@ -33,7 +34,7 @@ public class OpenJobDbMigrationService : ITransientDependency
         Logger = NullLogger<OpenJobDbMigrationService>.Instance;
     }
 
-    public async Task MigrateAsync()
+    public async Task MigrateAsync(string databaseProvider)
     {
         var initialMigrationAdded = AddInitialMigrationIfNotExist();
 
@@ -45,7 +46,7 @@ public class OpenJobDbMigrationService : ITransientDependency
         Logger.LogInformation("Started database migrations...");
 
         await MigrateDatabaseSchemaAsync();
-        await SeedDataAsync();
+        await SeedDataAsync(databaseProvider);
 
         Logger.LogInformation($"Successfully completed host database migrations.");
 
@@ -70,7 +71,7 @@ public class OpenJobDbMigrationService : ITransientDependency
                     }
                 }
 
-                await SeedDataAsync(tenant);
+                await SeedDataAsync(databaseProvider, tenant);
             }
 
             Logger.LogInformation($"Successfully completed {tenant.Name} tenant database migrations.");
@@ -91,13 +92,14 @@ public class OpenJobDbMigrationService : ITransientDependency
         }
     }
 
-    private async Task SeedDataAsync(Tenant tenant = null)
+    private async Task SeedDataAsync(string databaseProvider, Tenant tenant = null)
     {
         Logger.LogInformation($"Executing {(tenant == null ? "host" : tenant.Name + " tenant")} database seed...");
 
         await _dataSeeder.SeedAsync(new DataSeedContext(tenant?.Id)
             .WithProperty(IdentityDataSeedContributor.AdminEmailPropertyName, IdentityDataSeedContributor.AdminEmailDefaultValue)
             .WithProperty(IdentityDataSeedContributor.AdminPasswordPropertyName, IdentityDataSeedContributor.AdminPasswordDefaultValue)
+            .WithProperty(OrleansDataSeedContributor.DatabaseProviderNameKey, databaseProvider)
         );
     }
 

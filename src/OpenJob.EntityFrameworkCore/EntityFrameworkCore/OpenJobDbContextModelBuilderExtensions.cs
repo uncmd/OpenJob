@@ -5,6 +5,7 @@ using OpenJob.Orleans;
 using OpenJob.Tasks;
 using OpenJob.Workers;
 using Volo.Abp;
+using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore.Modeling;
 
 namespace OpenJob.Data;
@@ -106,13 +107,18 @@ public static class OpenJobDbContextModelBuilderExtensions
             b.Property(p => p.Score);
 
         });
-
+        
         builder.Entity<OrleansQuery>(b =>
         {
             b.ToTable("OrleansQuery");
 
+            int queryTextMaxLength = 8000;
+            if (builder.GetDatabaseProvider() == EfCoreDatabaseProvider.Oracle)
+            {
+                queryTextMaxLength = 4000;
+            }
             b.Property(p => p.QueryKey).HasMaxLength(64).IsRequired();
-            b.Property(p => p.QueryText).HasMaxLength(8000).IsRequired();
+            b.Property(p => p.QueryText).HasMaxLength(queryTextMaxLength).IsRequired();
 
             b.HasKey(p => p.QueryKey);
         });
