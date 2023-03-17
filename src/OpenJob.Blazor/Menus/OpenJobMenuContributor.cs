@@ -1,6 +1,6 @@
 ﻿using OpenJob.Localization;
 using OpenJob.MultiTenancy;
-using Volo.Abp.Account.Localization;
+using OpenJob.Permissions;
 using Volo.Abp.Authorization.Permissions;
 using Volo.Abp.Identity.Blazor;
 using Volo.Abp.SettingManagement.Blazor.Menus;
@@ -11,27 +11,17 @@ namespace OpenJob.Blazor.Menus;
 
 public class OpenJobMenuContributor : IMenuContributor
 {
-    private readonly IConfiguration _configuration;
-
-    public OpenJobMenuContributor(IConfiguration configuration)
-    {
-        _configuration = configuration;
-    }
-
     public async Task ConfigureMenuAsync(MenuConfigurationContext context)
     {
         if (context.Menu.Name == StandardMenus.Main)
         {
             await ConfigureMainMenuAsync(context);
         }
-        else if (context.Menu.Name == StandardMenus.User)
-        {
-            await ConfigureUserMenuAsync(context);
-        }
     }
 
-    private Task ConfigureMainMenuAsync(MenuConfigurationContext context)
+    private static Task ConfigureMainMenuAsync(MenuConfigurationContext context)
     {
+        var administration = context.Menu.GetAdministration();
         var l = context.GetLocalizer<OpenJobResource>();
 
         context.Menu.Items.Insert(
@@ -40,11 +30,10 @@ public class OpenJobMenuContributor : IMenuContributor
                 OpenJobMenus.Home,
                 l["Menu:Home"],
                 "/",
-                icon: "fas fa-home"
+                icon: "fas fa-home",
+                order: 0
             )
         );
-
-        var administration = context.Menu.GetAdministration();
 
         if (MultiTenancyConsts.IsEnabled)
         {
@@ -58,22 +47,41 @@ public class OpenJobMenuContributor : IMenuContributor
         administration.SetSubItemOrder(IdentityMenuNames.GroupName, 2);
         administration.SetSubItemOrder(SettingManagementMenus.GroupName, 3);
 
-        return Task.CompletedTask;
-    }
-
-    private Task ConfigureUserMenuAsync(MenuConfigurationContext context)
-    {
-        var accountStringLocalizer = context.GetLocalizer<AccountResource>();
-
-        var authServerUrl = _configuration["AuthServer:Authority"] ?? "";
-
-        context.Menu.AddItem(new ApplicationMenuItem(
-            "Account.Manage",
-            accountStringLocalizer["MyAccount"],
-            $"{authServerUrl.EnsureEndsWith('/')}Account/Manage?returnUrl={_configuration["App:SelfUrl"]}",
-            icon: "fa fa-cog",
-            order: 1000,
-            null).RequireAuthenticated());
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                "OpenJob",
+                l["Menu:OpenJob"],
+                icon: "fa " + Blazorise.Icons.FontAwesome.FontAwesomeIcons.Book
+            ).AddItem(
+                new ApplicationMenuItem(
+                    "OpenJob.Apps",
+                    l["Menu:Apps"],
+                    url: "~/openjob/apps",
+                    icon: "fa " + Blazorise.Icons.FontAwesome.FontAwesomeIcons.ListUl
+                ).RequirePermissions(OpenJobPermissions.Apps.Default)
+            ).AddItem(
+                new ApplicationMenuItem(
+                    "OpenJob.Jobs",
+                    l["Menu:Jobs"],
+                    url: "/jobs",
+                    icon: "fa " + Blazorise.Icons.FontAwesome.FontAwesomeIcons.Coffee
+                ).RequirePermissions(OpenJobPermissions.Jobs.Default)
+            ).AddItem(
+                new ApplicationMenuItem(
+                    "OpenJob.Tasks",
+                    l["Menu:Tasks"],
+                    url: "/tasks",
+                    icon: "fa " + Blazorise.Icons.FontAwesome.FontAwesomeIcons.Tasks
+                ).RequirePermissions(OpenJobPermissions.Tasks.Default)
+            ).AddItem(
+                new ApplicationMenuItem(
+                    "OpenJob.Workers",
+                    l["Menu:Workers"],
+                    url: "/workers",
+                    icon: "fa " + Blazorise.Icons.FontAwesome.FontAwesomeIcons.Server
+                ).RequirePermissions(OpenJobPermissions.Workers.Default)
+            )
+        );
 
         return Task.CompletedTask;
     }

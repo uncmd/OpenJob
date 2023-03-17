@@ -23,7 +23,7 @@ Log.Logger = new LoggerConfiguration()
 
 try
 {
-    Log.Information("Starting console host.");
+    Log.Information("Starting openjob server host.");
 
     var builder = Host.CreateDefaultBuilder(args);
 

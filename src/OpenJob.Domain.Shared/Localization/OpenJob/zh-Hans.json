@@ -1,8 +1,34 @@
 {
-    "culture": "zh-Hans",
-    "texts": {
-      "Menu:Home": "首页",
-      "Welcome": "欢迎",
-      "LongWelcomeMessage": "欢迎来到该应用程序. 这是一个基于ABP框架的启动项目. 有关更多信息, 请访问 abp.io."
-    }
+  "culture": "zh-Hans",
+  "texts": {
+    "Menu:Home": "首页",
+    "Welcome": "欢迎",
+    "LongWelcomeMessage": "欢迎来到该应用程序. 这是一个基于ABP框架的启动项目. 有关更多信息, 请访问 abp.io.",
+    "Menu:OpenJob": "开放任务",
+    "Menu:Apps": "应用管理",
+    "Menu:Jobs": "任务管理",
+    "Menu:Tasks": "任务实例",
+    "Menu:Workers": "执行器管理",
+    "Name": "名称",
+    "Description": "描述",
+    "IsEnabled": "是否可用",
+    "Apps": "应用管理",
+    "NewApp": "创建应用",
+    "Edit": "编辑",
+    "Delete": "删除",
+    "Save": "保存",
+    "Cancel": "取消",
+    "CreationTime": "创建时间",
+    "SuccessfullyDeleted": "删除成功",
+    "Permission:OpenJob": "开放任务管理",
+    "Permission:AppManagement": "应用管理",
+    "Permission:JobManagement": "任务管理",
+    "Permission:TaskManagement": "任务实例管理",
+    "Permission:WorkerManagement": "执行器管理",
+    "Permission:Create": "创建",
+    "Permission:Edit": "编辑",
+    "Permission:Delete": "删除",
+    "Permission:ChangePermissions": "更改权限",
+    "AppDeletionConfirmationMessage": "应用 '{0}' 将被删除. 你确定吗?"
   }
+}

@@ -35,7 +35,10 @@ public class AppInfoDataSeedContributor : IDataSeedContributor, ITransientDepend
         {
             if (await AppRepository.GetCountAsync() <= 0)
             {
-                var defaultApp = new AppInfo(GuidGenerator.Create(), "Default");
+                var defaultApp = new AppInfo(GuidGenerator.Create(), "Default")
+                {
+                    Description = "默认应用"
+                };
                 await AppRepository.InsertAsync(defaultApp, autoSave: true);
             }
         }

@@ -3,6 +3,32 @@
   "texts": {
     "Menu:Home": "Home",
     "Welcome": "Welcome",
-    "LongWelcomeMessage": "Welcome to the application. This is a startup project based on the ABP framework. For more information, visit abp.io."
+    "LongWelcomeMessage": "Welcome to the application. This is a startup project based on the ABP framework. For more information, visit abp.io.",
+    "Menu:OpenJob": "OpenJob",
+    "Menu:Apps": "App Manager",
+    "Menu:Jobs": "Job Manager",
+    "Menu:Tasks": "Task Manager",
+    "Menu:Workers": "Worker Manager",
+    "Name": "Name",
+    "Description": "Description",
+    "IsEnabled": "IsEnabled",
+    "Apps": "Apps",
+    "NewApp": "New App",
+    "Edit": "Edit",
+    "Delete": "Delete",
+    "Save": "Save",
+    "Cancel": "Cancel",
+    "CreationTime": "CreationTime",
+    "SuccessfullyDeleted": "SuccessfullyDeleted",
+    "Permission:OpenJob": "OpenJob management",
+    "Permission:AppManagement": "App management",
+    "Permission:JobManagement": "Job management",
+    "Permission:TaskManagement": "Task management",
+    "Permission:WorkerManagement": "Worker management",
+    "Permission:Create": "Create",
+    "Permission:Edit": "Edit",
+    "Permission:Delete": "Delete",
+    "Permission:ChangePermissions": "Change permissions",
+    "AppDeletionConfirmationMessage": "app '{0}' will be deleted. Do you confirm that?"
   }
 }
