@@ -23,6 +23,12 @@ public class AppInfoAppService :
         : base(appRepository)
     {
         AppInfoRepository = appInfoRepository;
+
+        GetPolicyName = OpenJobPermissions.Apps.Default;
+        GetListPolicyName = OpenJobPermissions.Apps.Default;
+        CreatePolicyName = OpenJobPermissions.Apps.Create;
+        UpdatePolicyName = OpenJobPermissions.Apps.Update;
+        DeletePolicyName = OpenJobPermissions.Apps.Delete;
     }
 
     [Authorize(OpenJobPermissions.Apps.Default)]

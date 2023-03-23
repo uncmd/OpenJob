@@ -35,8 +35,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\OpenJob\OpenJob.csproj" />
-  </ItemGroup>
-
 </Project>
