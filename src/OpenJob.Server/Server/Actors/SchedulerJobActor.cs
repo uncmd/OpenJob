@@ -15,9 +15,9 @@ public class SchedulerJobActor : ActorBase, ISchedulerJobActor
     private readonly IRepository<TaskInfo, Guid> _taskRepository;
 
     public SchedulerJobActor(
-    IOptions<OpenJobServerOptions> options,
-    IJobInfoRepository jobRepository,
-    IRepository<TaskInfo, Guid> taskRepository)
+        IOptions<OpenJobServerOptions> options,
+        IJobInfoRepository jobRepository,
+        IRepository<TaskInfo, Guid> taskRepository)
     {
         _options = options.Value;
         _jobRepository = jobRepository;
