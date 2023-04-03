@@ -32,7 +32,7 @@ public class SchedulerJobActor : ActorBase, ISchedulerJobActor
         var jobs = await _jobRepository.GetPreJobs(appId);
         if (!jobs.Any())
         {
-            Logger.LogInformation("current no job to schedule");
+            Logger.LogInformation("current app:{AppId} no job to schedule", appId);
             return;
         }
 
