@@ -2,5 +2,5 @@
 
 public interface ISchedulerJobActor : IGrainWithGuidKey
 {
-    Task Schedule(Guid appId);
+    Task Schedule(Guid appId, string appName);
 }

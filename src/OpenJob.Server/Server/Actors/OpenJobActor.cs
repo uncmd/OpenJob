@@ -46,7 +46,7 @@ public class OpenJobActor : ActorBase, IOpenJobActor, IRemindable
         foreach (var app in apps)
         {
             var jobActor = GrainFactory.GetGrain<ISchedulerJobActor>(app.Id);
-            var task = jobActor.Schedule(app.Id);
+            var task = jobActor.Schedule(app.Id, app.Name);
             tasks.Add(task);
         }
 

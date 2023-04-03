@@ -67,7 +67,7 @@ public class DispatchService : DomainService
             return;
         }
 
-        Logger.LogInformation("[Dispatcher-{JobName}|{TaskId}] start to dispatch task.", schedulerJob.Name, taskId);
+        Logger.LogDebug("[Dispatcher-{JobName}|{TaskId}] start to dispatch task.", schedulerJob.Name, taskId);
 
         // TODO: 并发限制
 
@@ -89,9 +89,9 @@ public class DispatchService : DomainService
 
         await PostRequest(schedulerJob, schedulerTask, workerIpList);
 
-        Logger.LogInformation("[Dispatcher-{JobName}|{TaskId}] send schedule request to TaskTracker[address:{}] successfully.", schedulerJob.Name, taskId, taskTrackerAddress);
-
         await _taskManager.Update4TriggerSucceed(taskId, TaskRunStatus.Succeed, Clock.Now, taskTrackerAddress);
+
+        Logger.LogDebug("[Dispatcher-{JobName}|{TaskId}] send schedule request to TaskTracker[address:{}] successfully.", schedulerJob.Name, taskId, taskTrackerAddress);
     }
 
     /// <summary>
