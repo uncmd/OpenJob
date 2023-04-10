@@ -128,7 +128,7 @@ public static class OpenJobDbContextModelBuilderExtensions
             b.ToTable("OrleansMembershipVersionTable");
 
             b.Property(p => p.DeploymentId).HasMaxLength(150).IsRequired();
-            b.Property(p => p.Timestamp).IsRequired().HasColumnType("DATETIME2").HasPrecision(3).HasDefaultValue(DateTime.UtcNow);
+            b.Property(p => p.Timestamp).IsRequired().HasColumnType("DATETIME2").HasPrecision(3);
             b.Property(p => p.Version).IsRequired().HasDefaultValue(0);
 
             b.HasKey(p => p.DeploymentId);
