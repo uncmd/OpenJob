@@ -33,13 +33,13 @@ public class EFCoreJobInfoRepository :
     {
         var dbSet = await GetDbSetAsync();
         // 查询即将要执行的任务
-        var startAt = Clock.Now.AddSeconds(_options.SchedulePeriod.TotalSeconds * 1.5);
+        var startAt = Clock.Now.AddSeconds(_options.SchedulePeriod.TotalSeconds * 1.2);
         return await dbSet
-            .Where(p => p.AppId == appId &&
-                (p.JobStatus == JobStatus.Ready || p.JobStatus == JobStatus.Running || p.JobStatus == JobStatus.ErrorToReady) &&
-                p.NextTriggerTime <= startAt &&
-                (p.BeginTime == null || p.BeginTime >= Clock.Now) &&
-                (p.EndTime == null || p.EndTime <= Clock.Now))
+            .Where(p => p.AppId == appId)
+            .Where(p => p.NextTriggerTime <= startAt)
+            .Where(p => p.JobStatus == JobStatus.Ready || p.JobStatus == JobStatus.Running || p.JobStatus == JobStatus.ErrorToReady)
+            .Where(p => p.BeginTime == null || p.BeginTime >= Clock.Now)
+            .Where(p => p.EndTime == null || p.EndTime <= Clock.Now)
             .ToListAsync();
     }
 
@@ -58,7 +58,7 @@ public class EFCoreJobInfoRepository :
     /// </summary>
     /// <param name="timingStrategyService"></param>
     /// <param name="startAt">起始时间</param>
-    internal void Increment(JobInfo jobInfo, TimingStrategyService timingStrategyService, DateTime startAt)
+    internal static void Increment(JobInfo jobInfo, TimingStrategyService timingStrategyService, DateTime startAt)
     {
         // 阻塞状态并没有实际执行，此时忽略次数递增和最近运行时间赋值
         if (jobInfo.JobStatus != JobStatus.Blocked)

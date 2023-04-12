@@ -163,21 +163,6 @@ public sealed class JobInfo : FullAuditedAggregateRoot<Guid>
     }
 
     /// <summary>
-    /// 下一次可执行检查
-    /// </summary>
-    /// <param name="startAt">起始时间</param>
-    /// <returns><see cref="bool"/></returns>
-    public bool NextShouldRun(DateTime startAt)
-    {
-        return IsNormalStatus()
-            && NextTriggerTime.HasValue
-            && NextTriggerTime.Value <= startAt
-            && LastTriggerTime != NextTriggerTime
-            && (BeginTime == null || BeginTime >= startAt)
-            && (EndTime == null || EndTime <= startAt);
-    }
-
-    /// <summary>
     /// 是否是正常触发器状态
     /// </summary>
     /// <returns><see cref="bool"/></returns>

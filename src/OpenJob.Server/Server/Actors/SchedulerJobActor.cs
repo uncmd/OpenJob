@@ -24,15 +24,16 @@ public class SchedulerJobActor : ActorBase, ISchedulerJobActor
         _taskRepository = taskRepository;
     }
 
-    public async Task Schedule(Guid appId, string appName)
+    public async Task ScheduleJob(Guid appId, string appName)
     {
         var stopwatch = Stopwatch.StartNew();
+        string appInfo = $"Id = {appId} Name = {appName}";
 
         // 查询即将要执行的任务
         var jobs = await _jobRepository.GetPreJobs(appId);
         if (!jobs.Any())
         {
-            Logger.LogInformation("current app:{AppName}({AppId}) no job to schedule", appName, appId);
+            Logger.LogInformation("current app no job to schedule: {AppInfo}", appInfo);
             return;
         }
 
@@ -42,11 +43,12 @@ public class SchedulerJobActor : ActorBase, ISchedulerJobActor
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "app:{AppName}({AppId}) dispatch job failed", appName, appId);
+            Logger.LogError(ex, "app dispatch job failed: {AppInfo}", appInfo);
         }
 
         stopwatch.Stop();
-        Logger.LogInformation("current app:{AppName}({AppId}) schedule finish({Cost}ms)", stopwatch.ElapsedMilliseconds);
+        Logger.LogInformation("current app schedule finish({Cost}ms): {AppInfo}"
+            , appInfo, stopwatch.ElapsedMilliseconds);
 
         if (stopwatch.Elapsed > _options.SchedulePeriod)
         {
@@ -62,60 +64,45 @@ public class SchedulerJobActor : ActorBase, ISchedulerJobActor
         List<TaskInfo> schedulerTasks = new List<TaskInfo>();
         foreach (var job in jobs)
         {
-            schedulerTasks.Add(new TaskInfo(GuidGenerator.Create(), job.Id, job.NextTriggerTime.Value));
+            var expectedTriggerTime = job.NextTriggerTime.Value;
+            // 任务过期
+            if (job.NextTriggerTime < Clock.Now)
+            {
+                Logger.LogWarning("job schedule delay, expect: {NextTriggerTime}, current: {Now} {JobInfo}",
+                    job.NextTriggerTime, Clock.Now, job);
+
+                if (job.MisfireStrategy == MisfireStrategy.Ignore)
+                {
+                    Logger.LogInformation("job MisfireStrategy is {MisfireStrategy}, continue this job: {JobInfo}",
+                        job.MisfireStrategy, job);
+
+                    continue;
+                }
+                else
+                {
+                    expectedTriggerTime = Clock.Now;
+                }
+            }
+            schedulerTasks.Add(new TaskInfo(GuidGenerator.Create(), job.Id, expectedTriggerTime));
         }
 
         await _taskRepository.InsertManyAsync(schedulerTasks, true);
 
         // 激活Actor等待调度执行
         List<Task> tasks = new List<Task>();
-        foreach (var job in jobs)
+        foreach (var taskInfo in schedulerTasks)
         {
-            var schedulerTask = schedulerTasks.FirstOrDefault(p => p.JobId == job.Id);
+            TimeSpan dueTime = taskInfo.ExpectedTriggerTime - Clock.Now;
 
-            var dueTime = GetJobDueTime(job);
-            if (dueTime == null)
-                continue;
-
-            var taskActor = ActorClient.GetGrain<ISchedulerTaskActor>(schedulerTask.Id);
-            var task = taskActor.DispatchTask(schedulerTask.Id, dueTime.Value);
+            var taskActor = ActorFactory.GetGrain<ISchedulerTaskActor>(taskInfo.Id);
+            var task = taskActor.DispatchTask(taskInfo.Id, dueTime);
             tasks.Add(task);
         }
 
         await Task.WhenAll(tasks);
 
         // 计算下一次调度时间
+        // todo: 间隔内的重复调度？最小的连续执行间隔为OpenJobServerOptions.SchedulePeriod
         await _jobRepository.RefreshNextTriggerTime(jobs);
-    }
-
-    /// <summary>
-    /// 到期时间，若小于当前时间(过期)则应用过期策略
-    /// </summary>
-    /// <param name="job"></param>
-    /// <returns>返回空值表示跳过本次执行</returns>
-    private TimeSpan? GetJobDueTime(JobInfo job)
-    {
-        TimeSpan dueTime = TimeSpan.Zero;
-        var targetTriggerTime = job.NextTriggerTime;
-        if (targetTriggerTime < Clock.Now)
-        {
-            Logger.LogWarning("{JobInfo} schedule delay, expect: {NextTriggerTime}, current: {Now}",
-                job, targetTriggerTime, Clock.Now);
-
-            if (job.MisfireStrategy == MisfireStrategy.Ignore &&
-                job.TimeExpression != TimeExpression.Delayed)
-            {
-                Logger.LogInformation("{JobInfo} MisfireStrategy is {MisfireStrategy}, continue this job, next trigger time is {NextTriggerTime}",
-                    job, job.MisfireStrategy, job.NextTriggerTime);
-
-                return null;
-            }
-        }
-        else
-        {
-            dueTime = targetTriggerTime.Value - Clock.Now;
-        }
-
-        return dueTime;
     }
 }

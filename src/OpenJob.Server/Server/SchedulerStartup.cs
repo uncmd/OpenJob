@@ -20,7 +20,7 @@ public class SchedulerStartup : IStartupTask
 
     public async Task Execute(CancellationToken cancellationToken)
     {
-        var actor = _grainFactory.GetGrain<IOpenJobActor>(0);
+        var actor = _grainFactory.GetGrain<ISchedulerReminder>(0);
 
         var orleansVersion = GetOrleansVersion();
         var hostVersion = GetHostVersion();
@@ -31,7 +31,7 @@ public class SchedulerStartup : IStartupTask
 
         _logger.LogInformation("OpenJob starting ... ");
 
-        await actor.Start();
+        await actor.Active();
     }
 
     private static string GetOrleansVersion()

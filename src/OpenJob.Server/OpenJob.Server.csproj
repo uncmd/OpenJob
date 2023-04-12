@@ -13,6 +13,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\OpenJob.Application.Contracts\OpenJob.Application.Contracts.csproj" />
 	  <ProjectReference Include="..\OpenJob.EntityFrameworkCore\OpenJob.EntityFrameworkCore.csproj" />
 	</ItemGroup>
 

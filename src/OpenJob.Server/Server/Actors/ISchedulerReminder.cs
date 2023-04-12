@@ -2,8 +2,14 @@
 
 namespace OpenJob.Server.Actors;
 
-public interface IOpenJobActor : IGrainWithIntegerKey
+public interface ISchedulerReminder : IGrainWithIntegerKey
 {
+    /// <summary>
+    /// 激活Actor并注册Reminder
+    /// </summary>
+    /// <returns></returns>
+    Task Active();
+
     /// <summary>
     /// 设置版本信息
     /// </summary>
@@ -13,9 +19,9 @@ public interface IOpenJobActor : IGrainWithIntegerKey
     [OneWay]
     Task SetVersion(string orleans, string host);
 
+    /// <summary>
+    /// 获取版本信息
+    /// </summary>
+    /// <returns></returns>
     Task<Immutable<Dictionary<string, string>>> GetExtendedProperties();
-
-    Task Start();
-
-    Task Stop();
 }

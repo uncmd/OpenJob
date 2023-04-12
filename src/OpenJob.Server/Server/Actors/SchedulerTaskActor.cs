@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using OpenJob.Tasks;
+﻿using OpenJob.Tasks;
 
 namespace OpenJob.Server.Actors;
 
@@ -14,8 +13,6 @@ public class SchedulerTaskActor : ActorBase, ISchedulerTaskActor
 
     public async Task DispatchTask(Guid taskId, TimeSpan dueTime)
     {
-        Logger.LogInformation("received dispatch request, dispatch starts in {DueTime}s, taskId: {TaskId}", dueTime.TotalSeconds, taskId);
-
         // 立即执行
         if (dueTime == TimeSpan.Zero)
         {
@@ -24,6 +21,7 @@ public class SchedulerTaskActor : ActorBase, ISchedulerTaskActor
         else
         {
             // 注册延时定时器，到期后执行一次
+            // todo: 更高效的延时执行，如时间轮
             RegisterTimer(_ => _dispatchService.Dispatch(taskId), null, dueTime, Timeout.InfiniteTimeSpan);
         }
     }

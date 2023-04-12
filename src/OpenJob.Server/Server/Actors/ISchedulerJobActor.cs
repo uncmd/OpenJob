@@ -1,6 +1,9 @@
-﻿namespace OpenJob.Server.Actors;
+﻿using Orleans.Concurrency;
+
+namespace OpenJob.Server.Actors;
 
 public interface ISchedulerJobActor : IGrainWithGuidKey
 {
-    Task Schedule(Guid appId, string appName);
+    [OneWay]
+    Task ScheduleJob(Guid appId, string appName);
 }
