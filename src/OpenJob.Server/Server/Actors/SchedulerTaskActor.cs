@@ -1,4 +1,5 @@
 ﻿using OpenJob.Tasks;
+using OpenJob.TimeWheel;
 
 namespace OpenJob.Server.Actors;
 
@@ -20,9 +21,8 @@ public class SchedulerTaskActor : ActorBase, ISchedulerTaskActor
         }
         else
         {
-            // 注册延时定时器，到期后执行一次
-            // todo: 更高效的延时执行，如时间轮
-            RegisterTimer(_ => _dispatchService.Dispatch(taskId), null, dueTime, Timeout.InfiniteTimeSpan);
+            // 到期后执行一次
+            TimingWheelTimer.Instance.Schedule(dueTime, () => _dispatchService.Dispatch(taskId));
         }
     }
 }
