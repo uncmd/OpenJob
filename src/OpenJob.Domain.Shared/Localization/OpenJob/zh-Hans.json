@@ -29,6 +29,8 @@
     "Permission:Edit": "编辑",
     "Permission:Delete": "删除",
     "Permission:ChangePermissions": "更改权限",
-    "AppDeletionConfirmationMessage": "应用 '{0}' 将被删除. 你确定吗?"
+    "AppDeletionConfirmationMessage": "应用 '{0}' 将被删除. 你确定吗?",
+    "NoScheduleApp": "当前没有应用可以调度.",
+    "NoScheduleJob": "当前应用没有需要执行的任务: {AppInfo}"
   }
 }

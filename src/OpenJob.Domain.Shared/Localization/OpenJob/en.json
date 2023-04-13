@@ -29,6 +29,8 @@
     "Permission:Edit": "Edit",
     "Permission:Delete": "Delete",
     "Permission:ChangePermissions": "Change permissions",
-    "AppDeletionConfirmationMessage": "app '{0}' will be deleted. Do you confirm that?"
+    "AppDeletionConfirmationMessage": "app '{0}' will be deleted. Do you confirm that?",
+    "NoScheduleApp": "No application can be scheduled.",
+    "NoScheduleJob": "Current app has no job to schedule: {AppInfo}"
   }
 }

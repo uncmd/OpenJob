@@ -6,7 +6,8 @@ namespace OpenJob;
 
 [DependsOn(
     typeof(AbpAutofacModule),
-    typeof(OpenJobEntityFrameworkCoreModule)
+    typeof(OpenJobEntityFrameworkCoreModule),
+    typeof(OpenJobApplicationContractsModule)
 )]
 public class OpenJobServerModule : AbpModule
 {

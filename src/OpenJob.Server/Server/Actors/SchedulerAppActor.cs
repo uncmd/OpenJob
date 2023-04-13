@@ -32,7 +32,7 @@ public class SchedulerAppActor : ActorBase<long>, ISchedulerAppActor
             var apps = await _appRepository.GetListAsync(p => p.IsEnabled);
             if (!apps.Any())
             {
-                Logger.LogInformation(L["current no app to schedule."]);
+                Logger.LogInformation(L["NoScheduleApp"]);
                 return;
             }
 

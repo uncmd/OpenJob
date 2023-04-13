@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using OpenJob.Localization;
 using Volo.Abp;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
@@ -112,6 +113,8 @@ public abstract class ActorBase<TPrimaryKey> : Grain, IActor<TPrimaryKey>
         {
             throw new ArgumentOutOfRangeException(typeof(TPrimaryKey).FullName);
         }
+
+        LocalizationResource = typeof(OpenJobResource);
 
         LazyServiceProvider = ServiceProvider.GetRequiredService<IAbpLazyServiceProvider>();
 
