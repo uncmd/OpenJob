@@ -1,6 +1,5 @@
 ﻿using OpenJob.Enums;
 using OpenJob.Jobs;
-using OpenJob.Workers;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Domain.Services;
 

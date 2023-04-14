@@ -1,6 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using OpenJob.MultiTenancy;
+using Volo.Abp.AspNetCore.SignalR;
 using Volo.Abp.AuditLogging;
 using Volo.Abp.BackgroundJobs;
 using Volo.Abp.Emailing;
@@ -28,10 +30,19 @@ namespace OpenJob;
     typeof(AbpPermissionManagementDomainIdentityModule),
     typeof(AbpSettingManagementDomainModule),
     typeof(AbpTenantManagementDomainModule),
-    typeof(AbpEmailingModule)
+    typeof(AbpEmailingModule),
+    typeof(AbpAspNetCoreSignalRModule)
 )]
 public class OpenJobDomainModule : AbpModule
 {
+    public override void PreConfigureServices(ServiceConfigurationContext context)
+    {
+        context.Services.PreConfigure<ISignalRServerBuilder>(builder =>
+        {
+            builder.AddMessagePackProtocol();
+        });
+    }
+
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
         Configure<AbpLocalizationOptions>(options =>

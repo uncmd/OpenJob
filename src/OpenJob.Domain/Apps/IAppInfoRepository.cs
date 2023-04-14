@@ -31,4 +31,6 @@ public interface IAppInfoRepository : IBasicRepository<AppInfo, Guid>
         DateTime? minModifitionTime = null,
         CancellationToken cancellationToken = default
     );
+
+    Task<AppInfo> GetAsync(string name);
 }

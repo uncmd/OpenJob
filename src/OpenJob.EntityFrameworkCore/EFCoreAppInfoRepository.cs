@@ -77,4 +77,11 @@ public class EFCoreAppInfoRepository :
             .PageBy(skipCount, maxResultCount)
             .ToListAsync(GetCancellationToken(cancellationToken));
     }
+
+    public async Task<AppInfo> GetAsync(string name)
+    {
+        return await (await GetDbSetAsync())
+            .Where(p => p.Name == name)
+            .FirstOrDefaultAsync();
+    }
 }

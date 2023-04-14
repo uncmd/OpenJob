@@ -19,6 +19,11 @@ public class ServerScheduleJobReq
     public Guid JobId { get; set; }
 
     /// <summary>
+    /// 任务名称
+    /// </summary>
+    public string JobName { get; set; }
+
+    /// <summary>
     /// 任务实例ID
     /// </summary>
     public Guid TaskId { get; set; }
@@ -67,4 +72,9 @@ public class ServerScheduleJobReq
     /// 时间表达式，CRON/NULL/LONG/LONG（单位S）
     /// </summary>
     public string TimeExpressionValue { get; set; }
+
+    /// <summary>
+    /// 下发策略
+    /// </summary>
+    public DispatchStrategy DispatchStrategy { get; set; }
 }

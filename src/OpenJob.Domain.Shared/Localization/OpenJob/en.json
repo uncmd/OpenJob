@@ -31,6 +31,7 @@
     "Permission:ChangePermissions": "Change permissions",
     "AppDeletionConfirmationMessage": "app '{0}' will be deleted. Do you confirm that?",
     "NoScheduleApp": "No application can be scheduled.",
-    "NoScheduleJob": "Current app has no job to schedule: {AppInfo}"
+    "NoScheduleJob": "Current app has no job to schedule: {AppInfo}",
+    "AppNotRegister": "App {AppName} not register."
   }
 }

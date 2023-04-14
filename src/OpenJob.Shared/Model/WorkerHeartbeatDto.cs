@@ -5,9 +5,9 @@ public class WorkerHeartbeatDto
 {
     public string WorkerAddress { get; set; }
 
-    public string AppName { get; set; }
-
     public Guid AppId { get; set; }
+
+    public string AppName { get; set; }
 
     public DateTime HeartbeatTime { get; set; }
 
@@ -21,6 +21,6 @@ public class WorkerHeartbeatDto
 
     public override string ToString()
     {
-        return $"AppId: {AppId}, AppName: {AppName}";
+        return $"AppName: {AppName}({WorkerAddress})";
     }
 }

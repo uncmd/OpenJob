@@ -9,6 +9,7 @@ Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
 #endif
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
     .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
     .MinimumLevel.Override("OpenIddict", LogEventLevel.Information)
     .MinimumLevel.Override("Volo.Abp", LogEventLevel.Information)

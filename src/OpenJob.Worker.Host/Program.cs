@@ -2,6 +2,7 @@
 using OpenJob;
 using Serilog.Events;
 using Serilog;
+using Microsoft.Extensions.DependencyInjection;
 
 Log.Logger = new LoggerConfiguration()
 #if DEBUG
@@ -21,9 +22,16 @@ try
 
     var builder = Host.CreateDefaultBuilder(args);
 
+    
     builder
         .ConfigureServices(services =>
         {
+            services.Configure<OpenJobWorkerOptions>(options =>
+            {
+                options.AppName = "WorkerTest2";
+                //options.ServerAddress = "https://localhost:44327";
+                options.ServerAddress = "http://localhost:5000";
+            });
             services.AddOpenJobWorker();
         })
         .UseSerilog()

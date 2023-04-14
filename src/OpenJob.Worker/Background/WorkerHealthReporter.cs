@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OpenJob.Hosting;
 using OpenJob.Model;
 
 namespace OpenJob.Background;
@@ -10,22 +11,25 @@ public class WorkerHealthReporter : IDisposable
     private readonly IServiceScopeFactory serviceScopeFactory;
     private readonly PeriodicTimer timer;
     private readonly ILogger<WorkerHealthReporter> logger;
-    private readonly OpenJobWorkerOptions workerOptions;
+    private readonly SingalRClient _singalRClient;
 
     public WorkerHealthReporter(
         IOptions<OpenJobWorkerOptions> options,
         IServiceScopeFactory serviceScopeFactory,
-        ILogger<WorkerHealthReporter> logger)
+        ILogger<WorkerHealthReporter> logger,
+        SingalRClient singalRClient)
     {
         this.serviceScopeFactory = serviceScopeFactory;
         this.logger = logger;
-        workerOptions = options.Value;
+        _singalRClient = singalRClient;
 
-        timer = new PeriodicTimer(TimeSpan.FromMicroseconds(options.Value.HealthReportInterval));
+        timer = new PeriodicTimer(TimeSpan.FromSeconds(options.Value.HealthReportInterval));
     }
 
     public async Task Start(CancellationToken cancellationToken = default)
     {
+        logger.LogInformation("Heartbeat started.");
+
         while (await timer.WaitForNextTickAsync(cancellationToken))
         {
             using (var scope = serviceScopeFactory.CreateScope())
@@ -36,42 +40,31 @@ public class WorkerHealthReporter : IDisposable
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "");
+                    logger.LogError(ex, "Health reporter error!");
                 }
             }
         }
     }
 
-    public Task Stop(CancellationToken cancellationToken = default)
-    {
-        timer.Dispose();
-        return Task.CompletedTask;
-    }
-
     protected async Task DoWorkAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {
         var metricsCollector = serviceProvider.GetRequiredService<ISystemMetricsCollector>();
-        var serverClient = serviceProvider.GetRequiredService<ServerClientFactory>();
 
         var metrics = metricsCollector.Collect();
         var workerHeartbeat = new WorkerHeartbeatDto
         {
+            AppName = WorkerRuntime.AppName,
             AppId = WorkerRuntime.AppId,
-            AppName = workerOptions.AppName,
             SystemMetrics = metrics,
-            WorkerAddress = WorkerRuntime.WorkerAddress,
+            WorkerAddress = WorkerRuntime.Address,
             HeartbeatTime = DateTime.Now,
-            WorkerVersion = GetType().Assembly.GetName().Version.ToString(),
-            Tag = workerOptions.Tag,
+            WorkerVersion = WorkerRuntime.Version,
+            Tag = WorkerRuntime.Tag,
+            Client = WorkerRuntime.Client
         };
 
-        logger.LogInformation("report health status: {WorkerHeartbeat}", workerHeartbeat);
-
-        await serverClient.WorkerHeartbeat(workerHeartbeat);
+        await _singalRClient.WorkerHeartbeat(workerHeartbeat, cancellationToken);
     }
 
-    public void Dispose()
-    {
-        timer?.Dispose();
-    }
+    public void Dispose() => timer?.Dispose();
 }

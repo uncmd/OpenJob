@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using OpenJob.Core;
 using OpenJob.Enums;
 using OpenJob.Jobs;
 using OpenJob.Model;
@@ -14,17 +16,20 @@ public class DispatchService : DomainService
     private readonly IRepository<TaskInfo, Guid> _taskRepository;
     private readonly WorkerClusterManager _workerManager;
     private readonly SchedulerTaskManager _taskManager;
+    private readonly IWorkerClient _workerClient;
 
     public DispatchService(
         IRepository<JobInfo, Guid> jobRepository,
         IRepository<TaskInfo, Guid> taskRepository,
         WorkerClusterManager workerManager,
-        SchedulerTaskManager taskManager)
+        SchedulerTaskManager taskManager,
+        IWorkerClient workerClient)
     {
         _jobRepository = jobRepository;
         _taskRepository = taskRepository;
         _workerManager = workerManager;
         _taskManager = taskManager;
+        _workerClient = workerClient;
     }
 
     /// <summary>
@@ -85,13 +90,9 @@ public class DispatchService : DomainService
         }
 
         var workerIpList = wokers.Select(p => p.Address).ToList();
-        var taskTrackerAddress = workerIpList.FirstOrDefault();
+        var trackerAddress = await PostRequest(schedulerJob, schedulerTask, workerIpList);
 
-        await PostRequest(schedulerJob, schedulerTask, workerIpList);
-
-        await _taskManager.Update4TriggerSucceed(taskId, TaskRunStatus.Succeed, Clock.Now, taskTrackerAddress);
-
-        Logger.LogDebug("[Dispatcher-{JobName}|{TaskId}] send schedule request to TaskTracker[address:{}] successfully.", schedulerJob.Name, taskId, taskTrackerAddress);
+        await _taskManager.Update4TriggerSucceed(taskId, TaskRunStatus.Succeed, Clock.Now, trackerAddress);
     }
 
     /// <summary>
@@ -101,11 +102,12 @@ public class DispatchService : DomainService
     /// <param name="task"></param>
     /// <param name="finalWorkersIpList"></param>
     /// <returns></returns>
-    private static async Task PostRequest(JobInfo job, TaskInfo task, List<string> finalWorkersIpList)
+    private async Task<string> PostRequest(JobInfo job, TaskInfo task, List<string> finalWorkersIpList)
     {
         var req = new ServerScheduleJobReq
         {
             JobId = job.Id,
+            JobName = job.Name,
             TaskId = task.Id,
             AllWorkerAddress = finalWorkersIpList,
             ExecutionMode = job.ExecutionMode,
@@ -117,8 +119,11 @@ public class DispatchService : DomainService
             TimeExpression = job.TimeExpression,
             TimeExpressionValue = job.TimeExpressionValue,
             TimeoutSecond = job.TimeoutSecond,
+            DispatchStrategy = job.DispatchStrategy,
         };
 
-        await WorkerClientFactory.DispatchJob2Worker(finalWorkersIpList.FirstOrDefault(), req);
+        var trackerAddress = await _workerClient.RunJob(req);
+
+        return trackerAddress;
     }
 }
