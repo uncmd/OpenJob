@@ -11,13 +11,13 @@ public class WorkerHealthReporter : IDisposable
     private readonly IServiceScopeFactory serviceScopeFactory;
     private readonly PeriodicTimer timer;
     private readonly ILogger<WorkerHealthReporter> logger;
-    private readonly SingalRClient _singalRClient;
+    private readonly ServerClientProxy _singalRClient;
 
     public WorkerHealthReporter(
         IOptions<OpenJobWorkerOptions> options,
         IServiceScopeFactory serviceScopeFactory,
         ILogger<WorkerHealthReporter> logger,
-        SingalRClient singalRClient)
+        ServerClientProxy singalRClient)
     {
         this.serviceScopeFactory = serviceScopeFactory;
         this.logger = logger;
@@ -63,7 +63,7 @@ public class WorkerHealthReporter : IDisposable
             Client = WorkerRuntime.Client
         };
 
-        await _singalRClient.WorkerHeartbeat(workerHeartbeat, cancellationToken);
+        await _singalRClient.WorkerHeartbeat(workerHeartbeat);
     }
 
     public void Dispose() => timer?.Dispose();

@@ -78,10 +78,10 @@ public class EFCoreAppInfoRepository :
             .ToListAsync(GetCancellationToken(cancellationToken));
     }
 
-    public async Task<AppInfo> GetAsync(string name)
+    public async Task<AppInfo> GetAsync(string name, CancellationToken cancellationToken = default)
     {
         return await (await GetDbSetAsync())
             .Where(p => p.Name == name)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken);
     }
 }

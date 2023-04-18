@@ -2,6 +2,7 @@
 using OpenJob.Enums;
 using OpenJob.Jobs;
 using Volo.Abp.DependencyInjection;
+using Volo.Abp.Timing;
 
 namespace OpenJob.TimingStrategys;
 
@@ -9,16 +10,36 @@ public class TimingStrategyService : ISingletonDependency
 {
     private readonly Dictionary<TimeExpression, ITimingStrategyHandler> _strategyContainer;
 
+    protected IClock Clock { get; }
+
     public TimingStrategyService(
         IEnumerable<ITimingStrategyHandler> timingStrategyHandlers,
-        ILogger<TimingStrategyService> logger)
+        ILogger<TimingStrategyService> logger,
+        IClock clock)
     {
+        Clock = clock;
         _strategyContainer = new Dictionary<TimeExpression, ITimingStrategyHandler>();
         foreach (var timingStrategyHandler in timingStrategyHandlers)
         {
             logger.LogInformation("register timing strategy handler: {TimingStrategyHandler}", timingStrategyHandler);
             _strategyContainer[timingStrategyHandler.SupportType()] = timingStrategyHandler;
         }
+    }
+
+    public void CalculateNextTriggerTime(JobInfo jobInfo)
+    {
+        // 阻塞状态并没有实际执行，此时忽略次数递增和最近运行时间赋值
+        if (jobInfo.JobStatus != JobStatus.Blocked)
+        {
+            jobInfo.LastTriggerTime = jobInfo.NextTriggerTime;
+            jobInfo.NumberOfRuns++;
+        }
+
+        // 计算任务下一次调度时间
+        jobInfo.NextTriggerTime = CalculateNextTriggerTime(jobInfo, Clock.Now);
+
+        // 检查下一次执行信息
+        CheckAndFixNextOccurrence(jobInfo);
     }
 
     public DateTime? CalculateNextTriggerTime(JobInfo schedulerJob, DateTime startAt)
@@ -130,5 +151,68 @@ public class TimingStrategyService : ISingletonDependency
         }
 
         return _strategyContainer[timeExpressionType];
+    }
+
+    /// <summary>
+    /// 检查下一次执行信息并修正 <see cref="NextTriggerTime"/> 和 <see cref="JobStatus"/>
+    /// </summary>
+    /// <returns></returns>
+    internal static bool CheckAndFixNextOccurrence(JobInfo jobInfo)
+    {
+        // 检查作业执行信息
+        if (jobInfo.ProcessorInfo.IsNullOrEmpty())
+        {
+            jobInfo.JobStatus = JobStatus.Unhandled;
+            jobInfo.NextTriggerTime = null;
+            return false;
+        }
+
+        // 开始时间检查
+        if (jobInfo.BeginTime != null && jobInfo.NextTriggerTime != null && jobInfo.BeginTime.Value > jobInfo.NextTriggerTime.Value)
+        {
+            jobInfo.JobStatus = JobStatus.Backlog;
+            jobInfo.NextTriggerTime = null;
+            return false;
+        }
+
+        // 结束时间检查
+        if (jobInfo.EndTime != null && jobInfo.NextTriggerTime != null && jobInfo.EndTime.Value < jobInfo.NextTriggerTime.Value)
+        {
+            jobInfo.JobStatus = JobStatus.Archived;
+            jobInfo.NextTriggerTime = null;
+            return false;
+        }
+
+        // 最大次数判断
+        if (jobInfo.MaxNumberOfRuns > 0 && jobInfo.NumberOfRuns >= jobInfo.MaxNumberOfRuns)
+        {
+            jobInfo.JobStatus = JobStatus.Overrun;
+            jobInfo.NextTriggerTime = null;
+            return false;
+        }
+
+        // 最大错误数判断
+        if (jobInfo.MaxNumberOfErrors > 0 && jobInfo.NumberOfErrors >= jobInfo.MaxNumberOfErrors)
+        {
+            jobInfo.JobStatus = JobStatus.Panic;
+            jobInfo.NextTriggerTime = null;
+            return false;
+        }
+
+        // 状态检查
+        if (!jobInfo.IsNormalStatus())
+        {
+            return false;
+        }
+
+        // 下一次运行时间空判断
+        if (jobInfo.NextTriggerTime == null)
+        {
+            if (jobInfo.IsNormalStatus())
+                jobInfo.JobStatus = JobStatus.Unoccupied;
+            return false;
+        }
+
+        return true;
     }
 }

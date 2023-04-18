@@ -10,18 +10,22 @@ using System.Reflection;
 
 namespace OpenJob.Hosting;
 
-public class SingalRClient : IAsyncDisposable
+public class ServerClientProxy : IAsyncDisposable, IServerClient
 {
     private readonly HubConnection connection;
     private readonly OpenJobWorkerOptions workerOptions;
     private readonly ILogger<WorkerHost> _logger;
+    private readonly IWorkerClient _workerClient;
 
-    public SingalRClient(
+    public ServerClientProxy(
         IOptions<OpenJobWorkerOptions> options,
-        ILogger<WorkerHost> logger)
+        ILogger<WorkerHost> logger,
+        IWorkerClient workerClient)
     {
         workerOptions = options.Value;
         _logger = logger;
+        _workerClient = workerClient;
+        InitWorkerRuntime();
 
         connection = new HubConnectionBuilder()
             .WithUrl($"{workerOptions.ServerAddress}/signalr-hubs/messaging")
@@ -58,14 +62,18 @@ public class SingalRClient : IAsyncDisposable
 
     private void InitOnMethod()
     {
-        connection.On<ServerScheduleJobReq>(nameof(IWorkerClient.RunJob), req =>
+        connection.On<ServerScheduleJobReq>(nameof(IWorkerClient.RunJob), async req =>
         {
-            _logger.LogInformation("Receive runjob: {Req}", req);
+            _logger.LogInformation("Receive runjob: {@Req}", req);
+
+            await _workerClient.RunJob(req);
         });
 
-        connection.On<Guid>(nameof(IWorkerClient.StopJob), taskId =>
+        connection.On<Guid>(nameof(IWorkerClient.StopJob), async taskId =>
         {
             _logger.LogInformation("Receive stopJob: {TaskId}", taskId);
+
+            await _workerClient.StopJob(taskId);
         });
     }
 
@@ -74,29 +82,43 @@ public class SingalRClient : IAsyncDisposable
     /// </summary>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<bool> AssertApp(CancellationToken cancellationToken)
+    public async Task<WrapResult> AssertApp(string appName)
     {
-        var result = await connection.InvokeAsync<WrapResult>(nameof(IServerClient.AssertApp), workerOptions.AppName, cancellationToken);
+        var result = await connection.InvokeAsync<WrapResult>(nameof(IServerClient.AssertApp), appName);
         if (result.Success == false)
         {
             _logger.LogWarning(result.Message);
+            return result;
         }
 
-        InitWorkerRuntime(Guid.Parse(result.Data.ToString()));
+        WorkerRuntime.AppId = Guid.Parse(result.Data.ToString());
 
         _logger.LogInformation("Current app: {AppName} assert success.", workerOptions.AppName);
 
-        return result.Success;
+        return result;
     }
 
-    public async Task WorkerHeartbeat(WorkerHeartbeatDto heartbeatDto, CancellationToken cancellationToken = default)
+    public async Task WorkerHeartbeat(WorkerHeartbeatDto heartbeatDto)
     {
-        await connection.SendAsync("WorkerHeartbeat", heartbeatDto, cancellationToken);
+        heartbeatDto.ConnectionId = connection.ConnectionId;
+        await connection.SendAsync(nameof(IServerClient.WorkerHeartbeat), heartbeatDto);
     }
 
-    public async Task ReportInstanceStatus(InstanceStatusDto statusDto, CancellationToken cancellationToken = default)
+    public async Task<WrapResult> ReportInstanceStatus(InstanceStatusDto statusDto)
     {
-        await connection.SendAsync("ReportInstanceStatus", statusDto, cancellationToken);
+        var result = await connection.InvokeAsync<WrapResult>(nameof(IServerClient.ReportInstanceStatus), statusDto);
+
+        return result;
+    }
+
+    public async Task ReportLog()
+    {
+        await connection.SendAsync(nameof(IServerClient.ReportLog));
+    }
+
+    public async Task RegisterProcessor(ProcessorReq req)
+    {
+        await connection.SendAsync(nameof(IServerClient.RegisterProcessor), req);
     }
 
     public ValueTask DisposeAsync()
@@ -104,10 +126,9 @@ public class SingalRClient : IAsyncDisposable
         return connection.DisposeAsync();
     }
 
-    private void InitWorkerRuntime(Guid appId)
+    private void InitWorkerRuntime()
     {
         WorkerRuntime.AppName = workerOptions.AppName;
-        WorkerRuntime.AppId = appId;
         WorkerRuntime.Tag = workerOptions.Tag;
         WorkerRuntime.Address = GetLocalIp();
         WorkerRuntime.Version = GetVersion();

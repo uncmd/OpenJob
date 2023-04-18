@@ -89,8 +89,8 @@ public class DispatchService : DomainService
             return;
         }
 
-        var workerIpList = wokers.Select(p => p.Address).ToList();
-        var trackerAddress = await PostRequest(schedulerJob, schedulerTask, workerIpList);
+        var connectionIdAddress = wokers.ToDictionary(p => p.ConnectionId, p => p.Address);
+        var trackerAddress = await PostRequest(schedulerJob, schedulerTask, connectionIdAddress);
 
         await _taskManager.Update4TriggerSucceed(taskId, TaskRunStatus.Succeed, Clock.Now, trackerAddress);
     }
@@ -100,16 +100,16 @@ public class DispatchService : DomainService
     /// </summary>
     /// <param name="job"></param>
     /// <param name="task"></param>
-    /// <param name="finalWorkersIpList"></param>
+    /// <param name="connectionIdAddress"></param>
     /// <returns></returns>
-    private async Task<string> PostRequest(JobInfo job, TaskInfo task, List<string> finalWorkersIpList)
+    private async Task<string> PostRequest(JobInfo job, TaskInfo task, Dictionary<string, string> connectionIdAddress)
     {
         var req = new ServerScheduleJobReq
         {
             JobId = job.Id,
             JobName = job.Name,
             TaskId = task.Id,
-            AllWorkerAddress = finalWorkersIpList,
+            ConnectionIdAddress = connectionIdAddress,
             ExecutionMode = job.ExecutionMode,
             JobArgs = job.JobArgs,
             ProcessorInfo = job.ProcessorInfo,

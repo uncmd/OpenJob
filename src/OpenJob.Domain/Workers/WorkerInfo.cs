@@ -8,6 +8,8 @@ public sealed class WorkerInfo : AuditedAggregateRoot<Guid>, IComparable<WorkerI
 
     public string Address { get; set; }
 
+    public string ConnectionId { get; set; }
+
     public DateTime LastActiveTime { get; set; }
 
     public string Client { get; set; }

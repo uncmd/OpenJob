@@ -95,6 +95,7 @@ public static class OpenJobDbContextModelBuilderExtensions
 
             b.Property(p => p.AppId).IsRequired();
             b.Property(p => p.Address).HasMaxLength(32);
+            b.Property(p => p.ConnectionId).HasMaxLength(64);
             b.Property(p => p.LastActiveTime);
             b.Property(p => p.Client).HasMaxLength(128);
             b.Property(p => p.Labels).HasMaxLength(256);

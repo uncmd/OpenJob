@@ -16,7 +16,7 @@ public interface IServerClient
     /// </summary>
     /// <param name="heartbeatDto"></param>
     /// <returns></returns>
-    Task<WrapResult> WorkerHeartbeat(WorkerHeartbeatDto heartbeatDto);
+    Task WorkerHeartbeat(WorkerHeartbeatDto heartbeatDto);
 
     /// <summary>
     /// 任务实例状态上报
@@ -28,5 +28,12 @@ public interface IServerClient
     /// 在线日志
     /// </summary>
     /// <returns></returns>
-    Task<WrapResult> ReportLog();
+    Task ReportLog();
+
+    /// <summary>
+    /// 注册处理器
+    /// </summary>
+    /// <param name="req"></param>
+    /// <returns></returns>
+    Task RegisterProcessor(ProcessorReq req);
 }

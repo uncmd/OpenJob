@@ -47,8 +47,8 @@ public class SchedulerJobActor : ActorBase, ISchedulerJobActor
         }
 
         stopwatch.Stop();
-        Logger.LogInformation("current app schedule finish({Cost}ms): {AppInfo}"
-            , appInfo, stopwatch.ElapsedMilliseconds);
+        Logger.LogInformation("current app schedule finish({Cost}ms): {AppInfo}", 
+            stopwatch.ElapsedMilliseconds, appInfo);
 
         if (stopwatch.Elapsed > _options.SchedulePeriod)
         {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using OpenJob.Background;
+using OpenJob.Core;
 using OpenJob.Hosting;
 using OpenJob.Processors;
 
@@ -14,16 +14,17 @@ public static class ServiceCollectionExtensions
     {
         services.Configure(configurator ?? (x => { }));
         services.AddTransient<ISystemMetricsCollector, SystemMetricsCollector>();
+        services.AddTransient<IWorkerClient, WorkerClient>();
         services.AddHostedService<WorkerHost>();
         services.AddSingleton<WorkerHealthReporter>();
-        services.AddSingleton<SingalRClient>();
+        services.AddSingleton<ServerClientProxy>();
+        services.AddSingleton<IProcessorLoader, OpenJobProcessorLoader>();
 
         services.Scan(scan => scan
-            .FromAssemblyOf<IProcessor>()
+            .FromApplicationDependencies()
                 .AddClasses(classes => classes.AssignableTo<IProcessor>())
                     .AsImplementedInterfaces()
                     .WithTransientLifetime()
-            .FromAssemblyOf<IProcessorFactory>()
                 .AddClasses(classes => classes.AssignableTo<IProcessorFactory>())
                     .AsImplementedInterfaces()
                     .WithTransientLifetime());

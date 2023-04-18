@@ -17,6 +17,8 @@ public class BuildInProcessorFactory : ProcessorFactoryBase
 
     public override IProcessor Build(ProcessorDefinition processorDefinition)
     {
+        return null;
+
         var typeName = processorDefinition.ProcessorInfo;
 
         try

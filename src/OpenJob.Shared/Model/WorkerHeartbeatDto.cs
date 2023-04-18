@@ -5,6 +5,8 @@ public class WorkerHeartbeatDto
 {
     public string WorkerAddress { get; set; }
 
+    public string ConnectionId { get; set; }
+
     public Guid AppId { get; set; }
 
     public string AppName { get; set; }

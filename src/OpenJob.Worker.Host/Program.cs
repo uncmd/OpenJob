@@ -22,15 +22,13 @@ try
 
     var builder = Host.CreateDefaultBuilder(args);
 
-    
     builder
         .ConfigureServices(services =>
         {
             services.Configure<OpenJobWorkerOptions>(options =>
             {
-                options.AppName = "WorkerTest2";
-                //options.ServerAddress = "https://localhost:44327";
-                options.ServerAddress = "http://localhost:5000";
+                options.AppName = "Default";
+                options.ServerAddress = "https://localhost:44327";
             });
             services.AddOpenJobWorker();
         })

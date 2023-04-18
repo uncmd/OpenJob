@@ -9,9 +9,9 @@ namespace OpenJob.Model;
 public class ServerScheduleJobReq
 {
     /// <summary>
-    /// 可用处理器地址，可能多值，逗号分隔
+    /// 可用处理器地址
     /// </summary>
-    public List<string> AllWorkerAddress { get; set; }
+    public Dictionary<string, string> ConnectionIdAddress { get; set; }
 
     /// <summary>
     /// 任务ID，当更换Server后需要根据 JobId 重新查询任务元数据

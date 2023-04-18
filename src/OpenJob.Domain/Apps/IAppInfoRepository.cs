@@ -32,5 +32,5 @@ public interface IAppInfoRepository : IBasicRepository<AppInfo, Guid>
         CancellationToken cancellationToken = default
     );
 
-    Task<AppInfo> GetAsync(string name);
+    Task<AppInfo> GetAsync(string name, CancellationToken cancellationToken = default);
 }
