@@ -22,7 +22,7 @@ public class WorkerClientProxy : IWorkerClient, ITransientDependency
         _logger = logger;
     }
 
-    public async Task<string> RunJob(ServerScheduleJobReq jobReq)
+    public async Task RunJob(ServerScheduleJobReq jobReq)
     {
         foreach (var idAddress in jobReq.ConnectionIdAddress)
         {
@@ -31,17 +31,13 @@ public class WorkerClientProxy : IWorkerClient, ITransientDependency
                 await GetClientProxy(idAddress.Key).RunJob(jobReq);
                 RuningJobs.Add(jobReq.TaskId, idAddress.Key);
 
-                _logger.LogDebug("[Dispatcher-{JobName}|{TaskId}] send schedule request to TaskTracker[address:{}] successfully.", jobReq.JobId, jobReq.TaskId, idAddress.Value);
-
-                return idAddress.Value;
+                _logger.LogDebug("send schedule request to worker(Address) successfully.", idAddress.Value);
             }
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "{Address} run job failed, try run next address.", idAddress.Value);
             }
         }
-
-        return string.Empty;
     }
 
     public async Task StopJob(Guid taskId)

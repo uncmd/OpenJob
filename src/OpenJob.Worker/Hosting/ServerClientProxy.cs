@@ -64,16 +64,18 @@ public class ServerClientProxy : IAsyncDisposable, IServerClient
     {
         connection.On<ServerScheduleJobReq>(nameof(IWorkerClient.RunJob), async req =>
         {
-            _logger.LogInformation("Receive runjob: {@Req}", req);
-
-            await _workerClient.RunJob(req);
+            using (_logger.BeginScope(req))
+            {
+                await _workerClient.RunJob(req);
+            }
         });
 
         connection.On<Guid>(nameof(IWorkerClient.StopJob), async taskId =>
         {
-            _logger.LogInformation("Receive stopJob: {TaskId}", taskId);
-
-            await _workerClient.StopJob(taskId);
+            using (_logger.BeginScope("TaskId:{TaskId}", taskId))
+            {
+                await _workerClient.StopJob(taskId);
+            }
         });
     }
 

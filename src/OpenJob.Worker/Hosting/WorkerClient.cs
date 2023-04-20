@@ -13,7 +13,7 @@ public class WorkerClient : IWorkerClient
         _processorLoader = processorLoader;
     }
 
-    public async Task<string> RunJob(ServerScheduleJobReq jobReq)
+    public async Task RunJob(ServerScheduleJobReq jobReq)
     {
         var processor = _processorLoader.Load(new ProcessorDefinition
         {
@@ -25,17 +25,16 @@ public class WorkerClient : IWorkerClient
         {
             JobArgs = jobReq.JobArgs,
             JobId = jobReq.JobId,
+            JobName = jobReq.JobName,
             MaxTryCount = jobReq.TaskRetryNum,
             TaskArgs = jobReq.TaskArgs,
             TaskId = jobReq.TaskId,
             TryCount = jobReq.TaskRetryNum
         });
-
-        return string.Empty;
     }
 
     public Task StopJob(Guid taskId)
     {
-        throw new NotImplementedException();
+        return Task.CompletedTask;
     }
 }

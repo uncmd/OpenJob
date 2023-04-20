@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using OpenJob.Background;
 using OpenJob.Core;
 using OpenJob.Hosting;
@@ -20,15 +21,41 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ServerClientProxy>();
         services.AddSingleton<IProcessorLoader, OpenJobProcessorLoader>();
 
-        services.Scan(scan => scan
-            .FromApplicationDependencies()
-                .AddClasses(classes => classes.AssignableTo<IProcessor>())
-                    .AsImplementedInterfaces()
-                    .WithTransientLifetime()
-                .AddClasses(classes => classes.AssignableTo<IProcessorFactory>())
-                    .AsImplementedInterfaces()
-                    .WithTransientLifetime());
+        services.AutoAddProcessor();
+        services.AutoAddProcessorFactory();
 
         return services;
+    }
+
+    private static void AutoAddProcessor(this IServiceCollection services)
+    {
+        var serviceType = typeof(IProcessor);
+        foreach (var assembly in AssemblyHelper.GetAssemblies())
+        {
+            foreach (var type in assembly.GetTypes()
+                .Where(t => serviceType.IsAssignableFrom(t) &&
+                    !t.IsInterface &&
+                    !t.IsAbstract &&
+                    !t.IsGenericType))
+            {
+                services.AddTransient(type);
+            }
+        }
+    }
+
+    private static void AutoAddProcessorFactory(this IServiceCollection services)
+    {
+        var serviceType = typeof(IProcessorFactory);
+        foreach (var assembly in AssemblyHelper.GetAssemblies())
+        {
+            foreach (var type in assembly.GetTypes()
+                .Where(t => serviceType.IsAssignableFrom(t) &&
+                    !t.IsInterface &&
+                    !t.IsAbstract &&
+                    !t.IsGenericType))
+            {
+                services.AddTransient(serviceType, type);
+            }
+        }
     }
 }

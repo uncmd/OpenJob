@@ -26,39 +26,40 @@ public class SchedulerJobActor : ActorBase, ISchedulerJobActor
 
     public async Task ScheduleJob(Guid appId, string appName)
     {
-        var stopwatch = Stopwatch.StartNew();
-        string appInfo = $"Id = {appId} Name = {appName}";
-
-        // 查询即将要执行的任务
-        var jobs = await _jobRepository.GetPreJobs(appId);
-        if (!jobs.Any())
+        using (Logger.BeginScope("AppName:{AppName}({Id})", appName, appId))
         {
-            Logger.LogInformation(L["NoScheduleJob"], appInfo);
-            return;
-        }
+            var stopwatch = Stopwatch.StartNew();
 
-        try
-        {
-            await ScheduleJob(jobs);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "app dispatch job failed: {AppInfo}", appInfo);
-        }
+            // 查询即将要执行的任务
+            var jobs = await _jobRepository.GetPreJobs(appId);
+            if (!jobs.Any())
+            {
+                Logger.LogInformation(L["NoScheduleJob"]);
+                return;
+            }
 
-        stopwatch.Stop();
-        Logger.LogInformation("current app schedule finish({Cost}ms): {AppInfo}", 
-            stopwatch.ElapsedMilliseconds, appInfo);
+            try
+            {
+                await ScheduleJob(jobs);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "app dispatch job failed");
+            }
 
-        if (stopwatch.Elapsed > _options.SchedulePeriod)
-        {
-            Logger.LogWarning("The database query is using too much time({Cost}ms), please check if the database load is too high!", stopwatch.ElapsedMilliseconds);
+            stopwatch.Stop();
+            Logger.LogInformation("current app schedule finish({Cost}ms)", stopwatch.ElapsedMilliseconds);
+
+            if (stopwatch.Elapsed > _options.SchedulePeriod)
+            {
+                Logger.LogWarning("The database query is using too much time({Cost}ms), please check if the database load is too high!", stopwatch.ElapsedMilliseconds);
+            }
         }
     }
 
     protected virtual async Task ScheduleJob(List<JobInfo> jobs)
     {
-        Logger.LogDebug("These jobs will be scheduled: {@Jobs}", jobs);
+        Logger.LogDebug("These {Count} jobs will be scheduled.", jobs.Count);
 
         // 批量写任务表
         List<TaskInfo> schedulerTasks = new List<TaskInfo>();
@@ -68,13 +69,13 @@ public class SchedulerJobActor : ActorBase, ISchedulerJobActor
             // 任务过期
             if (job.NextTriggerTime < Clock.Now)
             {
-                Logger.LogWarning("job schedule delay, expect: {NextTriggerTime}, current: {Now} {JobInfo}",
-                    job.NextTriggerTime, Clock.Now, job);
+                Logger.LogWarning("[JobName:{JobName}({JobId})] schedule delay, expect: {NextTriggerTime}, current: {Now}",
+                    job.Name, job.Id, job.NextTriggerTime, Clock.Now);
 
                 if (job.MisfireStrategy == MisfireStrategy.Ignore)
                 {
-                    Logger.LogInformation("job MisfireStrategy is {MisfireStrategy}, continue this job: {JobInfo}",
-                        job.MisfireStrategy, job);
+                    Logger.LogInformation("[JobName:{JobName}({JobId})] MisfireStrategy is {MisfireStrategy}, continue this job",
+                        job.Name, job.Id, job.MisfireStrategy);
 
                     continue;
                 }

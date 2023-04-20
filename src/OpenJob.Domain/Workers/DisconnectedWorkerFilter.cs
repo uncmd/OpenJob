@@ -21,7 +21,7 @@ public class DisconnectedWorkerFilter : IWorkerFilter
 
         if (timeout)
         {
-            _logger.LogInformation("[Job-{Job}] filter worker[{Worker}] due to timeout(lastActiveTime={Time})",
+            _logger.LogWarning("[Job-{Job}] filter worker[{Worker}] due to timeout(lastActiveTime={Time})",
                 job, worker, worker.LastActiveTime);
         }
 

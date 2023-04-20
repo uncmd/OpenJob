@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using OpenJob.Core;
 using OpenJob.Enums;
 using OpenJob.Jobs;
@@ -50,49 +49,55 @@ public class DispatchService : DomainService
         var schedulerJob = await _jobRepository.FindAsync(schedulerTask.JobId);
         if (schedulerJob == null)
         {
-            Logger.LogWarning("[Dispatcher-{JobId}|{TaskId}] cancel dispatch due to job has been deleted!", schedulerTask.JobId, taskId);
+            Logger.LogWarning("Dispatcher-{JobId}|{TaskId} cancel dispatch due to job has been deleted!",
+                schedulerTask.JobId, taskId);
             return;
         }
 
-        if (schedulerTask.TaskRunStatus == TaskRunStatus.Canceled)
+        using (Logger.BeginScope("Dispatcher-{JobName}-{JobId}|{TaskId}", 
+            schedulerJob.Name, schedulerTask.JobId, taskId))
         {
-            Logger.LogInformation("[Dispatcher-{JobName}|{TaskId}] cancel dispatch due to task has been canceled", schedulerJob.Name, taskId);
-            return;
+            if (schedulerTask.TaskRunStatus == TaskRunStatus.Canceled)
+            {
+                Logger.LogInformation("cancel dispatch due to task has been canceled.");
+                return;
+            }
+
+            if (schedulerTask.TaskRunStatus != TaskRunStatus.WaitingDispatch)
+            {
+                Logger.LogInformation("cancel dispatch due to task has been dispatched.");
+                return;
+            }
+
+            if (schedulerJob.ProcessorInfo.IsNullOrEmpty())
+            {
+                Logger.LogWarning("cancel dispatch due to ProcessorInfo is empty.");
+                return;
+            }
+
+            Logger.LogDebug("start to dispatch task.");
+
+            // TODO: 并发限制
+
+            // 获取当前最合适的 worker 列表
+            var wokers = await _workerManager.GetSuitableWorkers(schedulerJob);
+            if (wokers.IsNullOrEmpty())
+            {
+                Logger.LogWarning("cancel dispatch job due to no worker available.");
+
+                await _taskManager.Update4TriggerFailed(taskId, TaskRunStatus.Failed, Clock.Now, Clock.Now, OpenJobConsts.EmptyAddress, OpenJobConsts.NoWorkerAvailable);
+
+                await _taskManager.ProcessFinishedTask(taskId, TaskRunStatus.Failed, OpenJobConsts.NoWorkerAvailable);
+
+                return;
+            }
+
+            var connectionIdAddress = wokers.ToDictionary(p => p.ConnectionId, p => p.Address);
+            await PostRequest(schedulerJob, schedulerTask, connectionIdAddress);
+            var trackerAddress = wokers.Select(p => p.Address).FirstOrDefault();
+
+            await _taskManager.Update4TriggerSucceed(taskId, TaskRunStatus.Succeed, Clock.Now, trackerAddress);
         }
-
-        if (schedulerTask.TaskRunStatus != TaskRunStatus.WaitingDispatch)
-        {
-            Logger.LogInformation("[Dispatcher-{JobName}|{TaskId}] cancel dispatch due to task has been dispatched", schedulerJob.Name, taskId);
-            return;
-        }
-
-        if (schedulerJob.ProcessorInfo.IsNullOrEmpty())
-        {
-            Logger.LogWarning("[Dispatcher-{JobName}|{TaskId}] cancel dispatch due to ProcessorInfo is empty.", schedulerJob.Name, taskId);
-            return;
-        }
-
-        Logger.LogDebug("[Dispatcher-{JobName}|{TaskId}] start to dispatch task.", schedulerJob.Name, taskId);
-
-        // TODO: 并发限制
-
-        // 获取当前最合适的 worker 列表
-        var wokers = await _workerManager.GetSuitableWorkers(schedulerJob);
-        if (wokers.IsNullOrEmpty())
-        {
-            Logger.LogWarning("[Dispatcher-{JobName}|{TaskId}] cancel dispatch job due to no worker available for app:{AppId}", schedulerJob.Name, taskId, schedulerJob.AppId);
-
-            await _taskManager.Update4TriggerFailed(taskId, TaskRunStatus.Failed, Clock.Now, Clock.Now, OpenJobConsts.EmptyAddress, OpenJobConsts.NoWorkerAvailable);
-
-            await _taskManager.ProcessFinishedTask(taskId, TaskRunStatus.Failed, OpenJobConsts.NoWorkerAvailable);
-
-            return;
-        }
-
-        var connectionIdAddress = wokers.ToDictionary(p => p.ConnectionId, p => p.Address);
-        var trackerAddress = await PostRequest(schedulerJob, schedulerTask, connectionIdAddress);
-
-        await _taskManager.Update4TriggerSucceed(taskId, TaskRunStatus.Succeed, Clock.Now, trackerAddress);
     }
 
     /// <summary>
@@ -102,7 +107,7 @@ public class DispatchService : DomainService
     /// <param name="task"></param>
     /// <param name="connectionIdAddress"></param>
     /// <returns></returns>
-    private async Task<string> PostRequest(JobInfo job, TaskInfo task, Dictionary<string, string> connectionIdAddress)
+    private async Task PostRequest(JobInfo job, TaskInfo task, Dictionary<string, string> connectionIdAddress)
     {
         var req = new ServerScheduleJobReq
         {
@@ -122,8 +127,6 @@ public class DispatchService : DomainService
             DispatchStrategy = job.DispatchStrategy,
         };
 
-        var trackerAddress = await _workerClient.RunJob(req);
-
-        return trackerAddress;
+        await _workerClient.RunJob(req);
     }
 }

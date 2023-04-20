@@ -1,14 +1,22 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using OpenJob.Enums;
 
 namespace OpenJob.Processors;
 
 /// <summary>
-/// 内建的默认处理器工厂，通过全限定类名加载处理器，但无法享受 IOC 框架的 DI 功能
+/// 内建的默认处理器工厂，通过全限定类名从IOC加载处理器
 /// </summary>
 public class BuildInProcessorFactory : ProcessorFactoryBase
 {
-    public BuildInProcessorFactory(ILoggerFactory loggerFactory) : base(loggerFactory) { }
+    private readonly IServiceProvider _serviceProvider;
+
+    public BuildInProcessorFactory(
+        ILoggerFactory loggerFactory, IServiceProvider serviceProvider) :
+        base(loggerFactory)
+    {
+        _serviceProvider = serviceProvider;
+    }
 
     public override List<ProcessorType> SupportTypes()
     {
@@ -17,31 +25,23 @@ public class BuildInProcessorFactory : ProcessorFactoryBase
 
     public override IProcessor Build(ProcessorDefinition processorDefinition)
     {
-        return null;
-
         var typeName = processorDefinition.ProcessorInfo;
 
         try
         {
-            return CreateInstance<IProcessor>(typeName);
+            var processorType = Type.GetType(typeName);
+            var processor = (IProcessor)ActivatorUtilities.CreateInstance(_serviceProvider, processorType);
+            if (processor is ProcessorBase processorBase)
+            {
+                processorBase.ServiceProvider = _serviceProvider;
+            }
+            return processor;
         }
         catch (Exception ex)
         {
-            Logger.LogWarning(ex, "load local Processor({ProcessorDefinition}) failed.", processorDefinition);
+            Logger.LogWarning(ex, "load Processor({ProcessorDefinition}) failed.", processorDefinition);
         }
 
         return null;
-    }
-
-    /// <summary>
-    /// 创建对象实例
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="typeName">命名空间.类型名,程序集</param>
-    /// <returns></returns>
-    public static T CreateInstance<T>(string typeName)
-    {
-        object obj = Activator.CreateInstance(Type.GetType(typeName, true), true);
-        return (T)obj;
     }
 }

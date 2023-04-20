@@ -9,7 +9,7 @@ public interface IWorkerClient
     /// </summary>
     /// <param name="jobReq"></param>
     /// <returns></returns>
-    Task<string> RunJob(ServerScheduleJobReq jobReq);
+    Task RunJob(ServerScheduleJobReq jobReq);
 
     /// <summary>
     /// 终止任务

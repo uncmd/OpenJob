@@ -7,6 +7,8 @@ public class ProcessorContext
 {
     public Guid JobId { get; set; }
 
+    public string JobName { get; set; }
+
     public Guid TaskId { get; set; }
 
     public string JobArgs { get; set; }
@@ -30,6 +32,6 @@ public class ProcessorContext
 
     public override string ToString()
     {
-        return $"JobId: {JobId}, TaskId: {TaskId}";
+        return $"JobName:{JobName},JobId:{JobId},TaskId:{TaskId}";
     }
 }

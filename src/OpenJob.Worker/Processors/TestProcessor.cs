@@ -4,7 +4,7 @@ namespace OpenJob.Processors;
 
 public class TestProcessor : ProcessorBase
 {
-    public TestProcessor(ILoggerFactory loggerFactory) : base(loggerFactory) { }
+    public TestProcessor() { }
 
     protected override Task<ProcessorResult> DoWorkAsync(ProcessorContext context)
     {

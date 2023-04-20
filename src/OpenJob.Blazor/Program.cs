@@ -2,6 +2,9 @@ using OpenJob.Blazor;
 using Serilog;
 using Serilog.Events;
 
+const string DefaultOutputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Scope} {Message:lj}{NewLine}{Exception}";
+const string ConsoleOutputTemplate = "[{Timestamp:HH:mm:ss} {Level:u3}] {Scope} {Message:lj}{NewLine}{Exception}";
+
 Log.Logger = new LoggerConfiguration()
 #if DEBUG
     .MinimumLevel.Debug()
@@ -15,8 +18,8 @@ Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Volo.Abp", LogEventLevel.Information)
     .MinimumLevel.Override("Orleans", LogEventLevel.Information)
     .Enrich.FromLogContext()
-    .WriteTo.Async(c => c.File("Logs/logs.txt", rollingInterval: RollingInterval.Day))
-    .WriteTo.Async(c => c.Console())
+    .WriteTo.Async(c => c.File("Logs/logs.txt", rollingInterval: RollingInterval.Day, outputTemplate: DefaultOutputTemplate))
+    .WriteTo.Async(c => c.Console(outputTemplate: ConsoleOutputTemplate))
     .CreateLogger();
 
 try

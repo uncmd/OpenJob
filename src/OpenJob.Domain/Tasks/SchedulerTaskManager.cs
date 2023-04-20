@@ -47,7 +47,7 @@ public class SchedulerTaskManager : DomainService
     /// <returns></returns>
     public async Task ProcessFinishedTask(Guid taskId, TaskRunStatus status, string result)
     {
-        Logger.LogInformation("[Task-{TaskId}] process finished, final status is {TaskRunStatus}.", taskId, status);
+        Logger.LogInformation("process finished, final status is {TaskRunStatus}.", status);
 
         if (status == TaskRunStatus.Failed)
         {

@@ -77,4 +77,9 @@ public class ServerScheduleJobReq
     /// 下发策略
     /// </summary>
     public DispatchStrategy DispatchStrategy { get; set; }
+
+    public override string ToString()
+    {
+        return $"JobName:{JobName},JobId:{JobId},TaskId:{TaskId}";
+    }
 }

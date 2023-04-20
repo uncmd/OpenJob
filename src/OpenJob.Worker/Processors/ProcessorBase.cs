@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Diagnostics;
 
@@ -6,13 +7,15 @@ namespace OpenJob.Processors;
 
 public abstract class ProcessorBase : IProcessor
 {
-    protected ILoggerFactory LoggerFactory { get; }
+    public IServiceProvider ServiceProvider { get; set; }
+
+    protected ILoggerFactory LoggerFactory => ServiceProvider?.GetRequiredService<ILoggerFactory>();
 
     protected ILogger Logger => LoggerFactory?.CreateLogger(GetType().FullName) ?? NullLogger.Instance;
 
-    public ProcessorBase(ILoggerFactory loggerFactory)
+    public ProcessorBase()
     {
-        LoggerFactory = loggerFactory;
+        
     }
 
     public async Task<ProcessorResult> ExecuteAsync(ProcessorContext context)
@@ -35,7 +38,7 @@ public abstract class ProcessorBase : IProcessor
         finally
         {
             stopwatch.Stop();
-            Logger.LogInformation("{context} ==> {Status}|{Elapsed}", context, status, stopwatch.Elapsed);
+            Logger.LogInformation("{Status}|{Elapsed}", status, stopwatch.Elapsed);
             await DisposeAsync();
             Dispose();
         }
