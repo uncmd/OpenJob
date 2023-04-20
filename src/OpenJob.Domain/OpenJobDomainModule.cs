@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using OpenJob.MultiTenancy;
@@ -16,6 +16,7 @@ using Volo.Abp.PermissionManagement.Identity;
 using Volo.Abp.PermissionManagement.OpenIddict;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.TenantManagement;
+using Volo.Abp.Caching;
 
 namespace OpenJob;
 
@@ -23,6 +24,7 @@ namespace OpenJob;
     typeof(OpenJobDomainSharedModule),
     typeof(AbpAuditLoggingDomainModule),
     typeof(AbpBackgroundJobsDomainModule),
+    typeof(AbpCachingModule),
     typeof(AbpFeatureManagementDomainModule),
     typeof(AbpIdentityDomainModule),
     typeof(AbpOpenIddictDomainModule),
@@ -33,7 +35,7 @@ namespace OpenJob;
     typeof(AbpEmailingModule),
     typeof(AbpAspNetCoreSignalRModule)
 )]
-public class OpenJobDomainModule : AbpModule
+    public class OpenJobDomainModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)
     {

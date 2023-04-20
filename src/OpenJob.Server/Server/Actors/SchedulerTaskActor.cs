@@ -25,4 +25,9 @@ public class SchedulerTaskActor : ActorBase, ISchedulerTaskActor
             TimingWheelTimer.Instance.Schedule(dueTime, () => _dispatchService.Dispatch(taskId));
         }
     }
+
+    public async Task StopTask(Guid taskId)
+    {
+        await _dispatchService.StopTask(taskId);
+    }
 }

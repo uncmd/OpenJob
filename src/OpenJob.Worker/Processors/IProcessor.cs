@@ -9,6 +9,7 @@ public interface IProcessor : IAsyncDisposable, IDisposable
     /// 执行任务
     /// </summary>
     /// <param name="context">处理器上下文</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>处理结果</returns>
-    Task<ProcessorResult> ExecuteAsync(ProcessorContext context);
+    Task<ProcessorResult> ExecuteAsync(ProcessorContext context, CancellationToken cancellationToken = default);
 }

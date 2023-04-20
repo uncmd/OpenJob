@@ -18,14 +18,14 @@ public abstract class ProcessorBase : IProcessor
         
     }
 
-    public async Task<ProcessorResult> ExecuteAsync(ProcessorContext context)
+    public async Task<ProcessorResult> ExecuteAsync(ProcessorContext context, CancellationToken cancellationToken = default)
     {
         string status = "unknown";
         var stopwatch = Stopwatch.StartNew();
 
         try
         {
-            var result = await DoWorkAsync(context);
+            var result = await DoWorkAsync(context, cancellationToken);
             status = result.Success ? "success" : "failed";
             return result;
         }
@@ -59,5 +59,5 @@ public abstract class ProcessorBase : IProcessor
     /// </summary>
     /// <param name="context">任务上下文，可通过 JobArgs 和 InstanceArgs 分别获取控制台参数和OpenAPI传递的任务实例参数</param>
     /// <returns>处理结果，Message有长度限制，超长会被裁剪，不允许返回 null</returns>
-    protected abstract Task<ProcessorResult> DoWorkAsync(ProcessorContext context);
+    protected abstract Task<ProcessorResult> DoWorkAsync(ProcessorContext context, CancellationToken cancellationToken = default);
 }

@@ -101,6 +101,16 @@ public class DispatchService : DomainService
     }
 
     /// <summary>
+    /// 终止任务
+    /// </summary>
+    /// <param name="taskId"></param>
+    /// <returns></returns>
+    public async Task StopTask(Guid taskId)
+    {
+        await _workerClient.StopJob(taskId);
+    }
+
+    /// <summary>
     /// 下发任务到Worker执行
     /// </summary>
     /// <param name="job"></param>
