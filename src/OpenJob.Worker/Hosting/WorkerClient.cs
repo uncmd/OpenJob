@@ -9,7 +9,7 @@ public class WorkerClient : IWorkerClient
 {
     private readonly IProcessorLoader _processorLoader;
     private readonly ILogger<WorkerClient> _logger;
-    private CancellationTokenSource cts;
+    private readonly CancellationTokenSource manualCts = new CancellationTokenSource();
 
     public WorkerClient(IProcessorLoader processorLoader, ILogger<WorkerClient> logger)
     {
@@ -27,13 +27,14 @@ public class WorkerClient : IWorkerClient
                 ProcessorInfo = jobReq.ProcessorInfo,
             });
 
+            var cts = manualCts;
+
+            // 注册超时取消
             if (jobReq.TimeoutSecond > 0)
             {
-                cts = new CancellationTokenSource(jobReq.TimeoutSecond * 1000);
-            }
-            else
-            {
-                cts = new CancellationTokenSource();
+                var timeoutCts = new CancellationTokenSource(jobReq.TimeoutSecond * 1000);
+                timeoutCts.Token.Register(async () => await TimeoutHandler(jobReq));
+                cts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, manualCts.Token);
             }
 
             await processor.ExecuteAsync(new ProcessorContext
@@ -47,10 +48,6 @@ public class WorkerClient : IWorkerClient
                 TryCount = jobReq.TaskRetryNum
             }, cts.Token);
         }
-        catch (OperationCanceledException ex)
-        {
-            _logger.LogWarning(ex, "RunJob cancel, timeout:{TimeOut}s.", jobReq.TimeoutSecond);
-        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "RunJob error.");
@@ -60,7 +57,13 @@ public class WorkerClient : IWorkerClient
     public Task StopJob(Guid taskId)
     {
         _logger.LogInformation("Stop job.");
-        cts?.Cancel();
+        manualCts.Cancel();
+        return Task.CompletedTask;
+    }
+
+    private Task TimeoutHandler(ServerScheduleJobReq jobReq)
+    {
+        _logger.LogWarning("RunJob timeout cancel: {TimeOut}s.", jobReq.TimeoutSecond);
         return Task.CompletedTask;
     }
 }
